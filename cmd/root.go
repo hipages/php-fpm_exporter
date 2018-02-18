@@ -17,17 +17,17 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/hipages/php-fpm_exporter/phpfpm"
 	"github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/sirupsen/logrus"
-	"github.com/hipages/php-fpm_exporter/phpfpm"
 )
 
 var log = logrus.New()
 
 var (
-	cfgFile string
+	cfgFile  string
 	logLevel string
 )
 
@@ -35,7 +35,7 @@ var (
 var RootCmd = &cobra.Command{
 	Use:   "php-fpm_exporter",
 	Short: "Exports php-fpm metrics for prometheus",
-	Long: `php-fpm_exporter exports prometheus compatible metrics from php-fpm.`,
+	Long:  `php-fpm_exporter exports prometheus compatible metrics from php-fpm.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },

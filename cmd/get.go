@@ -14,13 +14,13 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"encoding/json"
+	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gosuri/uitable"
-	"fmt"
-	"time"
-	"encoding/json"
 	"github.com/hipages/php-fpm_exporter/phpfpm"
+	"github.com/spf13/cobra"
+	"time"
 )
 
 // Configuration variables
@@ -98,6 +98,6 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	getCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"},"FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
-	getCmd.Flags().StringVar(&output, "out", "text","Output format. One of: text, json, spew")
+	getCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
+	getCmd.Flags().StringVar(&output, "out", "text", "Output format. One of: text, json, spew")
 }

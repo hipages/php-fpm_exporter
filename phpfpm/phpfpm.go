@@ -14,14 +14,14 @@
 package phpfpm
 
 import (
-	"net/url"
+	"encoding/json"
+	"fmt"
 	"github.com/tomasen/fcgi_client"
 	"io/ioutil"
-	"encoding/json"
-	"time"
-	"fmt"
+	"net/url"
 	"strconv"
 	"sync"
+	"time"
 )
 
 var log logger
@@ -32,14 +32,13 @@ type logger interface {
 }
 
 type PoolManager struct {
-	pools  []Pool `json:"pools"`
+	pools []Pool `json:"pools"`
 }
 
 type Pool struct {
 	// The address of the pool, e.g. tcp://127.0.0.1:9000 or unix:///tmp/php-fpm.sock
 	Address             string
 	CollectionError     error
-
 	Name                string        `json:"pool"`
 	ProcessManager      string        `json:"process manager"`
 	StartTime           Timestamp     `json:"start time"`
@@ -84,7 +83,7 @@ func (pm *PoolManager) Update() (err error) {
 
 	started := time.Now()
 
-	for idx, _ := range pm.pools {
+	for idx := range pm.pools {
 		wg.Add(1)
 		go func(p *Pool) {
 			defer wg.Done()
@@ -107,7 +106,9 @@ func (pm *PoolManager) Pools() []Pool {
 
 // Implement custom Marshaler due to "pools" being unexported
 func (pm PoolManager) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct{Pools []Pool `json:"pools"` }{Pools: pm.pools})
+	return json.Marshal(struct {
+		Pools []Pool `json:"pools"`
+	}{Pools: pm.pools})
 }
 
 func (p *Pool) Update() (err error) {
@@ -151,7 +152,7 @@ func (p *Pool) Update() (err error) {
 	return nil
 }
 
-func (p *Pool) error(err error) (error) {
+func (p *Pool) error(err error) error {
 	p.CollectionError = err
 	log.Error(err)
 	return err
@@ -174,6 +175,6 @@ func (t *Timestamp) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func SetLogger(logger logger){
+func SetLogger(logger logger) {
 	log = logger
 }

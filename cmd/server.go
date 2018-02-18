@@ -14,11 +14,11 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/prometheus/client_golang/prometheus"
-	"net/http"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/hipages/php-fpm_exporter/phpfpm"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/spf13/cobra"
+	"net/http"
 )
 
 // Configuration variables
@@ -77,9 +77,9 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-    serverCmd.Flags().StringVar(&listeningAddress, "web.listen-address", ":9253", "Address on which to expose metrics and web interface.")
-    serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"},"FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
-	serverCmd.Flags().StringSliceVar(&customLabelNames, "phpfpm.label-name", []string{},"Name of the custom label that will be inserted.")
-	serverCmd.Flags().StringSliceVar(&customLabelValues, "phpfpm.label-value", []string{},"Value of the custom label that will be inserted.")
+	serverCmd.Flags().StringVar(&listeningAddress, "web.listen-address", ":9253", "Address on which to expose metrics and web interface.")
+	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
+	serverCmd.Flags().StringSliceVar(&customLabelNames, "phpfpm.label-name", []string{}, "Name of the custom label that will be inserted.")
+	serverCmd.Flags().StringSliceVar(&customLabelValues, "phpfpm.label-value", []string{}, "Value of the custom label that will be inserted.")
 }

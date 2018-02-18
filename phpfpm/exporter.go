@@ -1,9 +1,9 @@
 package phpfpm
 
 import (
-	"sync"
 	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
+	"sync"
 )
 
 const (
