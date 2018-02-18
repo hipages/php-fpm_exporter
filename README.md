@@ -33,3 +33,11 @@ A webserver such as NGINX or Apache is **NOT** needed!
 ## TODO
 
 - [ ] Test with unix socket
+
+## Contributing
+
+Contributions are greatly appreciated.
+The maintainers actively manage the issues list, and try to highlight issues suitable for newcomers.
+The project follows the typical GitHub pull request model.
+See " [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/) " for more details.
+Before starting any work, please either comment on an existing issue, or file a new one.
