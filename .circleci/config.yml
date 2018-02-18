@@ -20,5 +20,6 @@ jobs:
     steps:
       - checkout
 
-      - run: go get -v -t -d ./...
+      - run: go get -u github.com/golang/dep/cmd/dep
+      - run: dep ensure -vendor-only
       - run: go test -v ./...

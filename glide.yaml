@@ -1,7 +1,0 @@
-package: php-fpm_exporter
-import:
-- package: github.com/gosuri/uitable
-- package: github.com/sirupsen/logrus
-- package: github.com/mitchellh/go-homedir
-- package: github.com/spf13/cobra
-- package: github.com/spf13/viper
