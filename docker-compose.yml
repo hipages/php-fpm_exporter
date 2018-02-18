@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+
+  prometheus:
+    image: quay.io/prometheus/prometheus:latest
+    ports:
+      - 9090:9090
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+
+  phpfpm:
+    image: docker-php
+    ports:
+      - "9000:9000"
+    environment:
+      PHP_FPM_PM_STATUS_PATH: "/status"
