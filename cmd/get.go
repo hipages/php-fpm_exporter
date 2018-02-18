@@ -19,8 +19,8 @@ import (
 	"github.com/gosuri/uitable"
 	"fmt"
 	"time"
-	"php-fpm_exporter/phpfpm"
 	"encoding/json"
+	"../phpfpm"
 )
 
 // Configuration variables

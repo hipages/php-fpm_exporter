@@ -18,7 +18,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"php-fpm_exporter/phpfpm"
+	"../phpfpm"
 )
 
 // Configuration variables
