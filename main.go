@@ -13,7 +13,7 @@
 
 package main
 
-import "./cmd"
+import "github.com/hipages/php-fpm_exporter/cmd"
 
 func main() {
 	cmd.Execute()

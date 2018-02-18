@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/sirupsen/logrus"
-	"../phpfpm"
+	"github.com/hipages/php-fpm_exporter/phpfpm"
 )
 
 var log = logrus.New()

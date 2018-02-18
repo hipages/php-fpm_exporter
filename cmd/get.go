@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"time"
 	"encoding/json"
-	"../phpfpm"
+	"github.com/hipages/php-fpm_exporter/phpfpm"
 )
 
 // Configuration variables
