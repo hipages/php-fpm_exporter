@@ -58,7 +58,7 @@ var getCmd = &cobra.Command{
 			table.MaxColWidth = 80
 			table.Wrap = true
 
-			pools := pm.Pools()
+			pools := pm.Pools
 
 			for _, pool := range pools {
 				table.AddRow("Address:", pool.Address)

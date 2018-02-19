@@ -2,7 +2,6 @@ package phpfpm
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"net/http"
 	"sync"
 )
 
@@ -10,10 +9,10 @@ const (
 	namespace = "phpfpm"
 )
 
+// Exporter configures and exposes PHP-FPM metrics to Prometheus.
 type Exporter struct {
 	PoolManager PoolManager
 	mutex       sync.Mutex
-	client      *http.Client
 
 	startSince          *prometheus.Desc
 	acceptedConnections *prometheus.Desc
@@ -28,6 +27,7 @@ type Exporter struct {
 	slowRequests        *prometheus.Desc
 }
 
+// NewExporter creates a new Exporter for a PoolManager and configures the necessary metrics.
 func NewExporter(pm PoolManager) *Exporter {
 	return &Exporter{
 		PoolManager: pm,
@@ -100,13 +100,14 @@ func NewExporter(pm PoolManager) *Exporter {
 	}
 }
 
+// Collect updates the Pools and sends the collected metrics to Prometheus
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
 	e.PoolManager.Update()
 
-	for _, pool := range e.PoolManager.Pools() {
+	for _, pool := range e.PoolManager.Pools {
 		ch <- prometheus.MustNewConstMetric(e.startSince, prometheus.CounterValue, float64(pool.AcceptedConnections), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.acceptedConnections, prometheus.CounterValue, float64(pool.StartSince), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.listenQueue, prometheus.GaugeValue, float64(pool.ListenQueue), pool.Name)
@@ -128,6 +129,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	return
 }
 
+// Describe exposes the metric description to Prometheus
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.startSince
 	ch <- e.acceptedConnections

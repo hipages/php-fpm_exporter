@@ -31,17 +31,19 @@ type logger interface {
 	Error(ar ...interface{})
 }
 
+// PoolManager manages all configured Pools
 type PoolManager struct {
-	pools []Pool `json:"pools"`
+	Pools []Pool `json:"pools"`
 }
 
+// Pool describes a single PHP-FPM pool that can be reached via a Socket or TCP address
 type Pool struct {
 	// The address of the pool, e.g. tcp://127.0.0.1:9000 or unix:///tmp/php-fpm.sock
-	Address             string
-	CollectionError     error
+	Address             string        `json:"-"`
+	CollectionError     error         `json:"-"`
 	Name                string        `json:"pool"`
 	ProcessManager      string        `json:"process manager"`
-	StartTime           Timestamp     `json:"start time"`
+	StartTime           timestamp     `json:"start time"`
 	StartSince          int           `json:"start since"`
 	AcceptedConnections int           `json:"accepted conn"`
 	ListenQueue         int           `json:"listen queue"`
@@ -56,6 +58,7 @@ type Pool struct {
 	Processes           []PoolProcess `json:"processes"`
 }
 
+// PoolProcess describes a single PHP-FPM process. A pool can have multiple processes.
 type PoolProcess struct {
 	PID               int     `json:"pid"`
 	State             string  `json:"state"`
@@ -72,45 +75,37 @@ type PoolProcess struct {
 	LastRequestMemory int     `json:"last request memory"`
 }
 
+// Add will add a pool to the pool manager based on the given URI.
 func (pm *PoolManager) Add(uri string) Pool {
 	p := Pool{Address: uri}
-	pm.pools = append(pm.pools, p)
+	pm.Pools = append(pm.Pools, p)
 	return p
 }
 
+// Update will run the pool.Update() method concurrently on all Pools.
 func (pm *PoolManager) Update() (err error) {
 	wg := &sync.WaitGroup{}
 
 	started := time.Now()
 
-	for idx := range pm.pools {
+	for idx := range pm.Pools {
 		wg.Add(1)
 		go func(p *Pool) {
 			defer wg.Done()
 			p.Update()
-		}(&pm.pools[idx])
+		}(&pm.Pools[idx])
 	}
 
 	wg.Wait()
 
 	ended := time.Now()
 
-	log.Debugf("Updated %v pool(s) in %v", len(pm.pools), ended.Sub(started))
+	log.Debugf("Updated %v pool(s) in %v", len(pm.Pools), ended.Sub(started))
 
 	return nil
 }
 
-func (pm *PoolManager) Pools() []Pool {
-	return pm.pools
-}
-
-// Implement custom Marshaler due to "pools" being unexported
-func (pm PoolManager) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Pools []Pool `json:"pools"`
-	}{Pools: pm.pools})
-}
-
+// Update will connect to PHP-FPM and retrieve the latest data for the pool.
 func (p *Pool) Update() (err error) {
 	p.CollectionError = nil
 
@@ -158,23 +153,26 @@ func (p *Pool) error(err error) error {
 	return err
 }
 
-type Timestamp time.Time
+type timestamp time.Time
 
-func (t *Timestamp) MarshalJSON() ([]byte, error) {
+// MarshalJSON customise JSON for timestamp
+func (t *timestamp) MarshalJSON() ([]byte, error) {
 	ts := time.Time(*t).Unix()
 	stamp := fmt.Sprint(ts)
 	return []byte(stamp), nil
 }
 
-func (t *Timestamp) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON customise JSON for timestamp
+func (t *timestamp) UnmarshalJSON(b []byte) error {
 	ts, err := strconv.Atoi(string(b))
 	if err != nil {
 		return err
 	}
-	*t = Timestamp(time.Unix(int64(ts), 0))
+	*t = timestamp(time.Unix(int64(ts), 0))
 	return nil
 }
 
+// SetLogger configures the used logger
 func SetLogger(logger logger) {
 	log = logger
 }
