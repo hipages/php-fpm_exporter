@@ -13,8 +13,18 @@
 
 package main
 
-import "github.com/hipages/php-fpm_exporter/cmd"
+import (
+	"fmt"
+	"github.com/hipages/php-fpm_exporter/cmd"
+)
+
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
 
 func main() {
+	cmd.Version = fmt.Sprintf("%v, commit %v, built at %v", version, commit, date)
 	cmd.Execute()
 }

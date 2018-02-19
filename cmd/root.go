@@ -30,6 +30,7 @@ var log = logrus.New()
 var (
 	cfgFile  string
 	logLevel string
+	Version  string
 )
 
 // RootCmd represents the base command when called without any subcommands
