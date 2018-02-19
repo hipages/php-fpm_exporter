@@ -7,6 +7,9 @@ builds:
     goarch:
       - amd64
 
+dockers:
+  - image: hipages/php-fpm_exporter
+
 archive:
   format_overrides:
     - goos: windows
