@@ -1,5 +1,7 @@
 builds:
   - binary: php-fpm_exporter
+    env:
+      - CGO_ENABLED=0
     goos:
       - windows
       - darwin
