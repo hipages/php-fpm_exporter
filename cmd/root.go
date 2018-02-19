@@ -59,7 +59,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.php-fpm_exporter.yaml)")
-	RootCmd.PersistentFlags().StringVar(&logLevel, "log.level", "error", "Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal]")
+	RootCmd.PersistentFlags().StringVar(&logLevel, "log.level", "info", "Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal]")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
