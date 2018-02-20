@@ -17,8 +17,9 @@ services:
       PHP_FPM_PM_STATUS_PATH: "/status"
 
   exporter:
-    image: hipages/php-fpm_exporter:0.0.3
+    image: hipages/php-fpm_exporter:0.0.4
     ports:
       - "9253:9253"
     environment:
       PHP_FPM_SCRAPE_URI: "tcp://phpfpm:9000/status"
+      PHP_FPM_LOG_LEVEL: "debug"
