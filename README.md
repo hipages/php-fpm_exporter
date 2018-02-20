@@ -73,6 +73,7 @@ The `server` command runs the server required for prometheus to retrieve the sta
   * Prometheus: http://127.0.0.1:9090/
   * php-fpm_exporter metrics: http://127.0.0.1:9253/metrics
 
+  [![asciicast](https://asciinema.org/a/1msR8nqAsFdHzROosUb7PiHvf.png)](https://asciinema.org/a/1msR8nqAsFdHzROosUb7PiHvf)
 
 ## Metrics collected
 
