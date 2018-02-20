@@ -34,4 +34,4 @@ scrape_configs:
     scrape_timeout: 1s
 
     static_configs:
-      - targets: ['10.27.5.6:8080']
+      - targets: ['phpfpm:9253']
