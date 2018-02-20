@@ -89,6 +89,10 @@ func initConfig() {
 func initLogger() {
 	phpfpm.SetLogger(log)
 
+	if value := os.Getenv("PHP_FPM_LOG_LEVEL"); value != "" {
+		logLevel = value
+	}
+
 	lvl, err := logrus.ParseLevel(logLevel)
 	if err != nil {
 		lvl = logrus.InfoLevel
