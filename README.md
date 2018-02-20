@@ -35,25 +35,44 @@ The `server` command runs the server required for prometheus to retrieve the sta
 | `--web.listen-address` | Address on which to expose metrics and web interface. | `PHP_FPM_WEB_LISTEN_ADDRESS` | [`:9253`](https://github.com/prometheus/prometheus/wiki/Default-port-allocations)         |
 | `--web.telemetry-path` | Path under which to expose metrics.                   | `PHP_FPM_WEB_TELEMETRY_PATH` | `/metrics`      |
 | `--phpfpm.scrape-uri`  | FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status | `PHP_FPM_SCRAPE_URI` | `tcp://127.0.0.1:9000/status` |
+| `--log.level`          | Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal] (default "error") | PHP_FPM_LOG_LEVEL | info |
 
 ### CLI Examples
 
 * Retrieve information from PHP-FPM running on `127.0.0.1:9000` with status endpoint being `/status`
-
-  ```php-fpm_exporter get```
+  ```
+  php-fpm_exporter get
+  ```
 
 * Retrieve information from PHP-FPM running on `127.0.0.1:9000` and `127.0.0.1:9001`
-
-  ```php-fpm_exporter get --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status```
+  ```
+  php-fpm_exporter get --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status
+  ```
 
 * Run as server with 2 pools:
-
-  ```php-fpm_exporter server --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status```
+  ```
+  php-fpm_exporter server --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status
+  ```
 
 ### Docker Examples
 
-* docker pull hipages/php-fpm_exporter
-* docker run -it --rm -e PHP_FPM_SCRAPE_URI="tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status" hipages/php-fpm_exporter
+* Run docker manually
+  ```
+  docker pull hipages/php-fpm_exporter
+  docker run -it --rm -e PHP_FPM_SCRAPE_URI="tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status" hipages/php-fpm_exporter
+  ```
+
+* Run the docker-compose example
+  ```
+  git clone git@github.com:hipages/php-fpm_exporter.git
+  cd php-fpm_exporter/test
+  docker-compose -p php-fpm_exporter up
+  ```
+  You can now access the following links:
+
+  * Prometheus: http://127.0.0.1:9090/
+  * php-fpm_exporter metrics: http://127.0.0.1:9253/metrics
+
 
 ## Metrics collected
 
