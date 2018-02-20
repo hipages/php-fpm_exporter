@@ -14,11 +14,13 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/hipages/php-fpm_exporter/phpfpm"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"net/http"
+	"os"
 )
 
 // Configuration variables
@@ -82,4 +84,23 @@ func init() {
 	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
 	serverCmd.Flags().StringSliceVar(&customLabelNames, "phpfpm.label-name", []string{}, "Name of the custom label that will be inserted.")
 	serverCmd.Flags().StringSliceVar(&customLabelValues, "phpfpm.label-value", []string{}, "Value of the custom label that will be inserted.")
+
+	//viper.BindEnv("web.listen-address", "PHP_FPM_WEB_LISTEN_ADDRESS")
+	//viper.BindPFlag("web.listen-address", serverCmd.Flags().Lookup("web.listen-address"))
+
+	// Workaround since vipers BindEnv is currently not working as expected (see https://github.com/spf13/viper/issues/461)
+
+	envs := map[string]string{
+		"PHP_FPM_WEB_LISTEN_ADDRESS": "web.listen-address",
+		"PHP_FPM_WEB_TELEMETRY_PATH": "web.telemetry-path",
+		"PHP_FPM_SCRAPE_URI":         "phpfpm.scrape-uri",
+	}
+
+	for env, flag := range envs {
+		flag := serverCmd.Flags().Lookup(flag)
+		flag.Usage = fmt.Sprintf("%v [env %v]", flag.Usage, env)
+		if value := os.Getenv(env); value != "" {
+			flag.Value.Set(value)
+		}
+	}
 }
