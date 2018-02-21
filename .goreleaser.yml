@@ -13,6 +13,7 @@ dockers:
   - image: hipages/php-fpm_exporter
 
 archive:
+  format: binary
   format_overrides:
     - goos: windows
       format: zip
