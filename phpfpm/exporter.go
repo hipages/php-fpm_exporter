@@ -14,6 +14,7 @@
 package phpfpm
 
 import (
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"sync"
 )
@@ -27,6 +28,8 @@ type Exporter struct {
 	PoolManager PoolManager
 	mutex       sync.Mutex
 
+	up                  *prometheus.Desc
+	scrapeFailues       *prometheus.Desc
 	startSince          *prometheus.Desc
 	acceptedConnections *prometheus.Desc
 	listenQueue         *prometheus.Desc
@@ -44,6 +47,18 @@ type Exporter struct {
 func NewExporter(pm PoolManager) *Exporter {
 	return &Exporter{
 		PoolManager: pm,
+
+		up: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "up"),
+			"Could PHP-FPM be reached?",
+			[]string{"pool"},
+			nil),
+
+		scrapeFailues: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "scrape_failures"),
+			"The number of failures scraping from PHP-FPM.",
+			[]string{"pool"},
+			nil),
 
 		startSince: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "start_since"),
@@ -121,6 +136,15 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.PoolManager.Update()
 
 	for _, pool := range e.PoolManager.Pools {
+		ch <- prometheus.MustNewConstMetric(e.scrapeFailues, prometheus.CounterValue, float64(pool.ScrapeFailures))
+
+		if pool.ScrapeError != nil {
+			ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0)
+			log.Error("Error scraping PHP-FPM: %v", pool.ScrapeError)
+			continue
+		}
+
+		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1, pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.startSince, prometheus.CounterValue, float64(pool.AcceptedConnections), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.acceptedConnections, prometheus.CounterValue, float64(pool.StartSince), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.listenQueue, prometheus.GaugeValue, float64(pool.ListenQueue), pool.Name)
@@ -134,11 +158,6 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(e.slowRequests, prometheus.CounterValue, float64(pool.SlowRequests), pool.Name)
 	}
 
-	//if err := e.collect(ch); err != nil {
-	//	log.Errorf("Error scraping apache: %s", err)
-	//	e.scrapeFailures.Inc()
-	//	e.scrapeFailures.Collect(ch)
-	//}
 	return
 }
 
