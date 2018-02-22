@@ -135,10 +135,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.PoolManager.Update()
 
 	for _, pool := range e.PoolManager.Pools {
-		ch <- prometheus.MustNewConstMetric(e.scrapeFailues, prometheus.CounterValue, float64(pool.ScrapeFailures))
+		ch <- prometheus.MustNewConstMetric(e.scrapeFailues, prometheus.CounterValue, float64(pool.ScrapeFailures), pool.Name)
 
 		if pool.ScrapeError != nil {
-			ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0)
+			ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0, pool.Name)
 			log.Error("Error scraping PHP-FPM: %v", pool.ScrapeError)
 			continue
 		}
