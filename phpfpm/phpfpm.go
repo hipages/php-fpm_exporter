@@ -41,7 +41,8 @@ type PoolManager struct {
 type Pool struct {
 	// The address of the pool, e.g. tcp://127.0.0.1:9000 or unix:///tmp/php-fpm.sock
 	Address             string        `json:"-"`
-	CollectionError     error         `json:"-"`
+	ScrapeError         error         `json:"-"`
+	ScrapeFailures      int64         `json:"-"`
 	Name                string        `json:"pool"`
 	ProcessManager      string        `json:"process manager"`
 	StartTime           timestamp     `json:"start time"`
@@ -108,14 +109,15 @@ func (pm *PoolManager) Update() (err error) {
 
 // Update will connect to PHP-FPM and retrieve the latest data for the pool.
 func (p *Pool) Update() (err error) {
-	p.CollectionError = nil
+	p.ScrapeError = nil
 
-	env := make(map[string]string)
-	env["SCRIPT_FILENAME"] = "/status"
-	env["SCRIPT_NAME"] = "/status"
-	env["SERVER_SOFTWARE"] = "go / php-fpm_exporter "
-	env["REMOTE_ADDR"] = "127.0.0.1"
-	env["QUERY_STRING"] = "json&full"
+	env := map[string]string{
+		"SCRIPT_FILENAME": "/status",
+		"SCRIPT_NAME":     "/status",
+		"SERVER_SOFTWARE": "go / php-fpm_exporter",
+		"REMOTE_ADDR":     "127.0.0.1",
+		"QUERY_STRING":    "json&full",
+	}
 
 	uri, err := url.Parse(p.Address)
 	if err != nil {
@@ -127,17 +129,19 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
+	defer fcgi.Close()
+
 	resp, err := fcgi.Get(env)
 	if err != nil {
 		return p.error(err)
 	}
 
+	defer resp.Body.Close()
+
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return p.error(err)
 	}
-
-	fcgi.Close()
 
 	log.Debugf("Pool[", p.Address, "]:", string(content))
 
@@ -149,7 +153,8 @@ func (p *Pool) Update() (err error) {
 }
 
 func (p *Pool) error(err error) error {
-	p.CollectionError = err
+	p.ScrapeError = err
+	p.ScrapeFailures++
 	log.Error(err)
 	return err
 }
