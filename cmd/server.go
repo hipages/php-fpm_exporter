@@ -82,8 +82,6 @@ func init() {
 	serverCmd.Flags().StringVar(&listeningAddress, "web.listen-address", ":9253", "Address on which to expose metrics and web interface.")
 	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
-	serverCmd.Flags().StringSliceVar(&customLabelNames, "phpfpm.label-name", []string{}, "Name of the custom label that will be inserted.")
-	serverCmd.Flags().StringSliceVar(&customLabelValues, "phpfpm.label-value", []string{}, "Value of the custom label that will be inserted.")
 
 	//viper.BindEnv("web.listen-address", "PHP_FPM_WEB_LISTEN_ADDRESS")
 	//viper.BindPFlag("web.listen-address", serverCmd.Flags().Lookup("web.listen-address"))
