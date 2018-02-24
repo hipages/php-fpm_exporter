@@ -94,12 +94,16 @@ The `server` command runs the server required for prometheus to retrieve the sta
 # TYPE phpfpm_max_children_reached counter
 # HELP phpfpm_max_listen_queue The maximum number of requests in the queue of pending connections since FPM has started.
 # TYPE phpfpm_max_listen_queue counter
+# HELP phpfpm_scrape_failures The number of failures scraping from PHP-FPM.
+# TYPE phpfpm_scrape_failures counter
 # HELP phpfpm_slow_requests The number of requests that exceeded your 'request_slowlog_timeout' value.
 # TYPE phpfpm_slow_requests counter
 # HELP phpfpm_start_since The number of seconds since FPM has started.
 # TYPE phpfpm_start_since counter
 # HELP phpfpm_total_processes The number of idle + active processes.
 # TYPE phpfpm_total_processes gauge
+# HELP phpfpm_up Could PHP-FPM be reached?
+# TYPE phpfpm_up gauge
 ```
 
 ## Contributing
@@ -109,6 +113,15 @@ The maintainers actively manage the issues list, and try to highlight issues sui
 The project follows the typical GitHub pull request model.
 See " [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/) " for more details.
 Before starting any work, please either comment on an existing issue, or file a new one.
+
+## FAQ
+
+* **How to update "Metrics collected"?**
+
+  Copy&paste the output from:
+  ```
+  curl http://127.0.0.1:12345/metrics | grep phpfpm | grep "#"
+  ```
 
 ## Alternatives
 
