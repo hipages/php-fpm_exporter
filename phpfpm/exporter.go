@@ -15,6 +15,7 @@ package phpfpm
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/speps/go-hashids"
 	"sync"
 )
 
@@ -24,28 +25,35 @@ const (
 
 // Exporter configures and exposes PHP-FPM metrics to Prometheus.
 type Exporter struct {
-	PoolManager PoolManager
 	mutex       sync.Mutex
+	PoolManager PoolManager
 
-	up                  *prometheus.Desc
-	scrapeFailues       *prometheus.Desc
-	startSince          *prometheus.Desc
-	acceptedConnections *prometheus.Desc
-	listenQueue         *prometheus.Desc
-	maxListenQueue      *prometheus.Desc
-	listenQueueLength   *prometheus.Desc
-	idleProcesses       *prometheus.Desc
-	activeProcesses     *prometheus.Desc
-	totalProcesses      *prometheus.Desc
-	maxActiveProcesses  *prometheus.Desc
-	maxChildrenReached  *prometheus.Desc
-	slowRequests        *prometheus.Desc
+	CalculateProcessScoreboard bool
+
+	up                       *prometheus.Desc
+	scrapeFailues            *prometheus.Desc
+	startSince               *prometheus.Desc
+	acceptedConnections      *prometheus.Desc
+	listenQueue              *prometheus.Desc
+	maxListenQueue           *prometheus.Desc
+	listenQueueLength        *prometheus.Desc
+	idleProcesses            *prometheus.Desc
+	activeProcesses          *prometheus.Desc
+	totalProcesses           *prometheus.Desc
+	maxActiveProcesses       *prometheus.Desc
+	maxChildrenReached       *prometheus.Desc
+	slowRequests             *prometheus.Desc
+	processRequests          *prometheus.Desc
+	processLastRequestMemory *prometheus.Desc
+	processLastRequestCPU    *prometheus.Desc
 }
 
 // NewExporter creates a new Exporter for a PoolManager and configures the necessary metrics.
 func NewExporter(pm PoolManager) *Exporter {
 	return &Exporter{
 		PoolManager: pm,
+
+		CalculateProcessScoreboard: false,
 
 		up: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "up"),
@@ -124,6 +132,24 @@ func NewExporter(pm PoolManager) *Exporter {
 			"The number of requests that exceeded your 'request_slowlog_timeout' value.",
 			[]string{"pool"},
 			nil),
+
+		processRequests: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "process_requests"),
+			"",
+			[]string{"pool", "pid"},
+			nil),
+
+		processLastRequestMemory: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "process_last_request_memory"),
+			"",
+			[]string{"pool", "pid"},
+			nil),
+
+		processLastRequestCPU: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "process_last_request_cpu"),
+			"",
+			[]string{"pool", "pid"},
+			nil),
 	}
 }
 
@@ -143,18 +169,36 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
+		active, idle, total := CalculateProcessScoreboard(pool)
+		if active != pool.ActiveProcesses || idle != pool.IdleProcesses {
+			log.Error("Inconsistent active and idle processes reported. Set `--fix-process-count` to have this calculated by php-fpm_exporter instead.")
+		}
+
+		if e.CalculateProcessScoreboard == false {
+			active = pool.ActiveProcesses
+			idle = pool.IdleProcesses
+			total = pool.TotalProcesses
+		}
+
 		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1, pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.startSince, prometheus.CounterValue, float64(pool.AcceptedConnections), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.acceptedConnections, prometheus.CounterValue, float64(pool.StartSince), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.listenQueue, prometheus.GaugeValue, float64(pool.ListenQueue), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxListenQueue, prometheus.CounterValue, float64(pool.MaxListenQueue), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.listenQueueLength, prometheus.GaugeValue, float64(pool.ListenQueueLength), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.idleProcesses, prometheus.GaugeValue, float64(pool.IdleProcesses), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.activeProcesses, prometheus.GaugeValue, float64(pool.ActiveProcesses), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.totalProcesses, prometheus.GaugeValue, float64(pool.TotalProcesses), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.idleProcesses, prometheus.GaugeValue, float64(idle), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.activeProcesses, prometheus.GaugeValue, float64(active), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.totalProcesses, prometheus.GaugeValue, float64(total), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxActiveProcesses, prometheus.CounterValue, float64(pool.MaxActiveProcesses), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxChildrenReached, prometheus.CounterValue, float64(pool.MaxChildrenReached), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.slowRequests, prometheus.CounterValue, float64(pool.SlowRequests), pool.Name)
+
+		for _, process := range pool.Processes {
+			pid := calculateProcessHash(process)
+			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, pid)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, pid)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, float64(process.LastRequestCPU), pool.Name, pid)
+		}
 	}
 
 	return
@@ -173,4 +217,15 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.maxActiveProcesses
 	ch <- e.maxChildrenReached
 	ch <- e.slowRequests
+}
+
+// calculateProcessHash generates a unique identifier for a process to ensure uniqueness across multiple systems/containers
+func calculateProcessHash(pp PoolProcess) string {
+	hd := hashids.NewData()
+	hd.Salt = "php-fpm_exporter"
+	hd.MinLength = 12
+	h := hashids.NewWithData(hd)
+	e, _ := h.Encode([]int{int(pp.StartTime), int(pp.PID)})
+
+	return e
 }

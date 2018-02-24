@@ -136,6 +136,12 @@
   revision = "8c0189d9f6bbf301e5d055d34268156b317016af"
 
 [[projects]]
+  name = "github.com/speps/go-hashids"
+  packages = ["."]
+  revision = "d1d57a886aa7e3ef6092b70ceab077e35ee8e0ce"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/spf13/afero"
   packages = [
     ".",
@@ -211,6 +217,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9d6c96a2ed2824b362a4f9d68ba313678fb7e3f7e38e2fd7058ba9c21a0b2487"
+  inputs-digest = "679d8f3e08c6fb8c5ef8eb95cedf7aec17654ae00051c78638c88c3731b1dc43"
   solver-name = "gps-cdcl"
   solver-version = 1

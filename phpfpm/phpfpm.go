@@ -25,11 +25,18 @@ import (
 	"time"
 )
 
+const PoolProcessRequestIdle string = "Idle"
+const PoolProcessRequestActive string = "Running"
+
 var log logger
 
 type logger interface {
+	Info(ar ...interface{})
+	Infof(string, ...interface{})
+	Debug(ar ...interface{})
 	Debugf(string, ...interface{})
 	Error(ar ...interface{})
+	Errorf(string, ...interface{})
 }
 
 // PoolManager manages all configured Pools
@@ -46,34 +53,34 @@ type Pool struct {
 	Name                string        `json:"pool"`
 	ProcessManager      string        `json:"process manager"`
 	StartTime           timestamp     `json:"start time"`
-	StartSince          int           `json:"start since"`
-	AcceptedConnections int           `json:"accepted conn"`
-	ListenQueue         int           `json:"listen queue"`
-	MaxListenQueue      int           `json:"max listen queue"`
-	ListenQueueLength   int           `json:"listen queue len"`
-	IdleProcesses       int           `json:"idle processes"`
-	ActiveProcesses     int           `json:"active processes"`
-	TotalProcesses      int           `json:"total processes"`
-	MaxActiveProcesses  int           `json:"max active processes"`
-	MaxChildrenReached  int           `json:"max children reached"`
-	SlowRequests        int           `json:"slow requests"`
+	StartSince          int64         `json:"start since"`
+	AcceptedConnections int64         `json:"accepted conn"`
+	ListenQueue         int64         `json:"listen queue"`
+	MaxListenQueue      int64         `json:"max listen queue"`
+	ListenQueueLength   int64         `json:"listen queue len"`
+	IdleProcesses       int64         `json:"idle processes"`
+	ActiveProcesses     int64         `json:"active processes"`
+	TotalProcesses      int64         `json:"total processes"`
+	MaxActiveProcesses  int64         `json:"max active processes"`
+	MaxChildrenReached  int64         `json:"max children reached"`
+	SlowRequests        int64         `json:"slow requests"`
 	Processes           []PoolProcess `json:"processes"`
 }
 
 // PoolProcess describes a single PHP-FPM process. A pool can have multiple processes.
 type PoolProcess struct {
-	PID               int     `json:"pid"`
+	PID               int64   `json:"pid"`
 	State             string  `json:"state"`
-	StartTime         int     `json:"start time"`
-	StartSince        int     `json:"start since"`
-	Requests          int     `json:"requests"`
-	RequestDuration   int     `json:"request duration"`
+	StartTime         int64   `json:"start time"`
+	StartSince        int64   `json:"start since"`
+	Requests          int64   `json:"requests"`
+	RequestDuration   int64   `json:"request duration"`
 	RequestMethod     string  `json:"request method"`
 	RequestURI        string  `json:"request uri"`
-	ContentLength     int     `json:"content length"`
+	ContentLength     int64   `json:"content length"`
 	User              string  `json:"user"`
 	Script            string  `json:"script"`
-	LastRequestCPU    float32 `json:"last request cpu"`
+	LastRequestCPU    float64 `json:"last request cpu"`
 	LastRequestMemory int     `json:"last request memory"`
 }
 
@@ -143,7 +150,7 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
-	log.Debugf("Pool[", p.Address, "]:", string(content))
+	log.Debugf("Pool[%v]: %v", p.Address, string(content))
 
 	if err = json.Unmarshal(content, &p); err != nil {
 		return p.error(err)
@@ -157,6 +164,25 @@ func (p *Pool) error(err error) error {
 	p.ScrapeFailures++
 	log.Error(err)
 	return err
+}
+
+func CalculateProcessScoreboard(p Pool) (active int64, idle int64, total int64) {
+	active = 0
+	idle = 0
+	total = 0
+
+	for idx := range p.Processes {
+		switch p.Processes[idx].State {
+		case PoolProcessRequestActive:
+			active++
+		case PoolProcessRequestIdle:
+			idle++
+		default:
+			log.Errorf("Unknown process state '%v'", p.Processes[idx].State)
+		}
+	}
+
+	return active, idle, active + idle
 }
 
 type timestamp time.Time

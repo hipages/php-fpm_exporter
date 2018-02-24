@@ -31,6 +31,7 @@ var (
 	listeningAddress string
 	metricsEndpoint  string
 	scrapeURIs       []string
+	fixProcessCount  bool
 )
 
 // serverCmd represents the server command
@@ -53,6 +54,12 @@ to quickly create a Cobra application.`,
 		}
 
 		exporter := phpfpm.NewExporter(pm)
+
+		if fixProcessCount {
+			log.Info("Idle/Active/Total Processes will be calculated by php-fpm_exporter.")
+			exporter.CalculateProcessScoreboard = true
+		}
+
 		prometheus.MustRegister(exporter)
 
 		srv := &http.Server{
@@ -118,6 +125,7 @@ func init() {
 	serverCmd.Flags().StringVar(&listeningAddress, "web.listen-address", ":9253", "Address on which to expose metrics and web interface.")
 	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
+	serverCmd.Flags().BoolVar(&fixProcessCount, "phpfpm.fix-process-count", false, "Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.")
 
 	//viper.BindEnv("web.listen-address", "PHP_FPM_WEB_LISTEN_ADDRESS")
 	//viper.BindPFlag("web.listen-address", serverCmd.Flags().Lookup("web.listen-address"))
@@ -128,6 +136,7 @@ func init() {
 		"PHP_FPM_WEB_LISTEN_ADDRESS": "web.listen-address",
 		"PHP_FPM_WEB_TELEMETRY_PATH": "web.telemetry-path",
 		"PHP_FPM_SCRAPE_URI":         "phpfpm.scrape-uri",
+		"PHP_FPM_FIX_PROCESS_COUNT":  "phpfpm.fix-process-count",
 	}
 
 	for env, flag := range envs {
