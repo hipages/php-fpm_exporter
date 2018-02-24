@@ -25,7 +25,10 @@ import (
 	"time"
 )
 
+// PoolProcessRequestIdle defines a process that is idle.
 const PoolProcessRequestIdle string = "Idle"
+
+// PoolProcessRequestIdle defines a process that is active.
 const PoolProcessRequestActive string = "Running"
 
 var log logger
