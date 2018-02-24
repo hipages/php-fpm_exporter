@@ -16,11 +16,12 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gosuri/uitable"
 	"github.com/hipages/php-fpm_exporter/phpfpm"
 	"github.com/spf13/cobra"
-	"time"
 )
 
 // Configuration variables
