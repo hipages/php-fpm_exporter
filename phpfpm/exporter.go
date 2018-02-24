@@ -165,7 +165,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 		if pool.ScrapeError != nil {
 			ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0, pool.Name)
-			log.Error("Error scraping PHP-FPM: %v", pool.ScrapeError)
+			log.Errorf("Error scraping PHP-FPM: %v", pool.ScrapeError)
 			continue
 		}
 
