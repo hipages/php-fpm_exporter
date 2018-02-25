@@ -75,6 +75,8 @@ The `server` command runs the server required for prometheus to retrieve the sta
 
   [![asciicast](https://asciinema.org/a/1msR8nqAsFdHzROosUb7PiHvf.png)](https://asciinema.org/a/1msR8nqAsFdHzROosUb7PiHvf)
 
+### Kubernetes Example
+
 ## Metrics collected
 
 ```
