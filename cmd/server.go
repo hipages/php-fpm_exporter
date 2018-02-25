@@ -15,7 +15,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -134,13 +133,5 @@ func init() {
 		"PHP_FPM_FIX_PROCESS_COUNT":  "phpfpm.fix-process-count",
 	}
 
-	for env, flag := range envs {
-		flag := serverCmd.Flags().Lookup(flag)
-		flag.Usage = fmt.Sprintf("%v [env %v]", flag.Usage, env)
-		if value := os.Getenv(env); value != "" {
-			if err := flag.Value.Set(value); err != nil {
-				log.Error(err)
-			}
-		}
-	}
+	mapEnvVars(envs, serverCmd)
 }
