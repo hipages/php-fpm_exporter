@@ -55,6 +55,11 @@ The `server` command runs the server required for prometheus to retrieve the sta
   php-fpm_exporter server --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status
   ```
 
+* Run as server and enable process count fix via environment variable:
+  ```
+  PHP_FPM_FIX_PROCESS_COUNT=1 go run main.go server --web.listen-address ":12345" --log.level=debug
+  ```
+
 ### Docker Examples
 
 * Run docker manually
@@ -97,6 +102,12 @@ The `server` command runs the server required for prometheus to retrieve the sta
 # TYPE phpfpm_max_children_reached counter
 # HELP phpfpm_max_listen_queue The maximum number of requests in the queue of pending connections since FPM has started.
 # TYPE phpfpm_max_listen_queue counter
+# HELP phpfpm_process_last_request_cpu
+# TYPE phpfpm_process_last_request_cpu gauge
+# HELP phpfpm_process_last_request_memory
+# TYPE phpfpm_process_last_request_memory gauge
+# HELP phpfpm_process_requests
+# TYPE phpfpm_process_requests counter
 # HELP phpfpm_scrape_failures The number of failures scraping from PHP-FPM.
 # TYPE phpfpm_scrape_failures counter
 # HELP phpfpm_slow_requests The number of requests that exceeded your 'request_slowlog_timeout' value.
