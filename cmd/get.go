@@ -45,7 +45,9 @@ var getCmd = &cobra.Command{
 			pm.Add(uri)
 		}
 
-		pm.Update()
+		if err := pm.Update(); err != nil {
+			log.Fatal("Could not update pool.", err)
+		}
 
 		switch output {
 		case "json":

@@ -103,7 +103,9 @@ to quickly create a Cobra application.`,
 		defer cancel()
 		// Doesn't block if no connections, but will otherwise wait
 		// until the timeout deadline.
-		srv.Shutdown(ctx)
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Fatal("Error during shutdown", err)
+		}
 		// Optionally, you could run srv.Shutdown in a goroutine and block on
 		// <-ctx.Done() if your application should wait for other services
 		// to finalize based on context cancellation.
@@ -136,7 +138,9 @@ func init() {
 		flag := serverCmd.Flags().Lookup(flag)
 		flag.Usage = fmt.Sprintf("%v [env %v]", flag.Usage, env)
 		if value := os.Getenv(env); value != "" {
-			flag.Value.Set(value)
+			if err := flag.Value.Set(value); err != nil {
+				log.Error(err)
+			}
 		}
 	}
 }
