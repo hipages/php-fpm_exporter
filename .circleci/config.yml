@@ -50,7 +50,7 @@ workflows:
               only: /^v.*/
       - deploy:
           requires:
-            - build
+            - test
           filters:
             branches:
               ignore: /.*/
