@@ -23,7 +23,7 @@ jobs:
       - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
       - run: dep ensure -vendor-only
       - run: curl -L -s https://github.com/alecthomas/gometalinter/releases/download/v2.0.5/gometalinter-2.0.5-linux-amd64.tar.gz | tar xvfz - -C /go/bin/ --strip 1
-      - run: gometalinter ./...
+      - run: gometalinter --disable-all --enable=errcheck --enable=vet --enable=vetshadow ./...
 
   deploy:
     <<: *defaults
