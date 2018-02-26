@@ -11,12 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package phpfpm provides convenient access to PHP-FPM pool data
 package phpfpm
 
 import (
+	"sync"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/speps/go-hashids"
-	"sync"
 )
 
 const (

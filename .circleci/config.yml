@@ -1,23 +1,35 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
+defaults: &defaults
+  working_directory: /go/src/github.com/hipages/php-fpm_exporter
+
 version: 2
 jobs:
 
-  build:
+  test:
+    <<: *defaults
     docker:
       - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/hipages/php-fpm_exporter
     steps:
       - checkout
       - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
       - run: dep ensure -vendor-only
       - run: go test -v ./...
 
-  deploy:
+  lint:
+    <<: *defaults
     docker:
       - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/hipages/php-fpm_exporter
+    steps:
+      - checkout
+      - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
+      - run: dep ensure -vendor-only
+      - run: curl -L -s https://github.com/alecthomas/gometalinter/releases/download/v2.0.5/gometalinter-2.0.5-linux-amd64.tar.gz | tar xvfz - -C /go/bin/ --strip 1
+#      - run: gometalinter --disable-all --enable=errcheck --enable=vet --enable=vetshadow --vendor ./...
+      - run: gometalinter --disable-all --enable=vet --enable=vetshadow --vendor ./...
+
+  deploy:
+    <<: *defaults
+    docker:
+      - image: circleci/golang:1.9
     steps:
       - checkout
       - setup_remote_docker:
@@ -31,13 +43,17 @@ workflows:
   version: 2
   build-n-deploy:
     jobs:
-      - build:
+      - test:
+          filters:
+            tags:
+              only: /^v.*/
+      - lint:
           filters:
             tags:
               only: /^v.*/
       - deploy:
           requires:
-            - build
+            - test
           filters:
             branches:
               ignore: /.*/

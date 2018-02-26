@@ -101,3 +101,15 @@ func initLogger() {
 
 	log.SetLevel(lvl)
 }
+
+func mapEnvVars(envs map[string]string, cmd *cobra.Command) {
+	for env, flag := range envs {
+		flag := cmd.Flags().Lookup(flag)
+		flag.Usage = fmt.Sprintf("%v [env %v]", flag.Usage, env)
+		if value := os.Getenv(env); value != "" {
+			if err := flag.Value.Set(value); err != nil {
+				log.Error(err)
+			}
+		}
+	}
+}

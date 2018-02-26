@@ -17,12 +17,13 @@ package phpfpm
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/tomasen/fcgi_client"
 	"io/ioutil"
 	"net/url"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/tomasen/fcgi_client"
 )
 
 // PoolProcessRequestIdle defines a process that is idle.
