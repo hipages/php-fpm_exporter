@@ -178,7 +178,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
-		pps := CalculateProcessScoreboard(pool)
+		pps := CountProcessState(pool)
 		if !e.CalculateProcessScoreboard && (pps.Active() != pool.ActiveProcesses || pps.Idle != pool.IdleProcesses) {
 			log.Error("Inconsistent active and idle processes reported. Set `--fix-process-count` to have this calculated by php-fpm_exporter instead.")
 		}

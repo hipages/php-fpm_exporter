@@ -202,8 +202,8 @@ func (pps *PoolProcessStateCounter) Total() int64 {
 	return pps.Idle + pps.Active()
 }
 
-// CalculateProcessScoreboard creates a scoreboard with the calculated process metrics.
-func CalculateProcessScoreboard(p Pool) PoolProcessStateCounter {
+// CountProcessState creates a scoreboard with the calculated process metrics.
+func CountProcessState(p Pool) PoolProcessStateCounter {
 	pps := PoolProcessStateCounter{}
 
 	for idx := range p.Processes {
