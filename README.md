@@ -38,6 +38,23 @@ The `server` command runs the server required for prometheus to retrieve the sta
 | `--phpfpm.fix-process-count`  | Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers. | `PHP_FPM_FIX_PROCESS_COUNT`| `false` |
 | `--log.level`          | Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal] (default "error") | `PHP_FPM_LOG_LEVEL` | info |
 
+### Why `--phpfpm.fix-process-count`?
+
+`php-fpm_exporter` implements an option to "fix" the reported metrics based on the provided processes list by PHP-FPM.
+
+We have seen PHP-FPM provide metrics (e.g. active processes) which don't match reality.
+Specially `active processes` being larger than `max_children` and the actual number of running processes on the host.
+Looking briefly at the source code of PHP-FPM it appears a scoreboard is being kept and the values are increased/decreased once an action is executed.
+The metric `active processes` is also an accumulation of multiple states (e.g. Reading headers, Getting request information, Running).
+Which shouldn't matter and `active processes` should still be equal or lower to `max_children`.
+
+`--phpfpm.fix-process-count` will emulate PHP-FPMs implementation including the accumulation of multiple states.
+
+If you like to have a more granular reporting please use `phpfpm_process_state`.
+
+* https://bugs.php.net/bug.php?id=76003
+* https://stackoverflow.com/questions/48961556/can-active-processes-be-larger-than-max-children-for-php-fpm
+
 ### CLI Examples
 
 * Retrieve information from PHP-FPM running on `127.0.0.1:9000` with status endpoint being `/status`
