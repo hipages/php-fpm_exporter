@@ -101,19 +101,19 @@ func NewExporter(pm PoolManager) *Exporter {
 
 		idleProcesses: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "idle_processes"),
-			"The number of idle processes.",
+			"The number of idle processes (--fix-process-count will count processes in state Idle).",
 			[]string{"pool"},
 			nil),
 
 		activeProcesses: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "active_processes"),
-			"The number of active processes.",
+			"The number of active processes (--fix-process-count will count processes in state Running).",
 			[]string{"pool"},
 			nil),
 
 		totalProcesses: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "total_processes"),
-			"The number of idle + active processes.",
+			"The number of idle + active processes (--fix-process-count will count all processes regardless of state).",
 			[]string{"pool"},
 			nil),
 
