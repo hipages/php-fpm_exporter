@@ -29,8 +29,8 @@ import (
 // PoolProcessRequestIdle defines a process that is idle.
 const PoolProcessRequestIdle string = "Idle"
 
-// PoolProcessRequestIdle defines a process that is active.
-const PoolProcessRequestActive string = "Running"
+// PoolProcessRequestRunning defines a process that is running.
+const PoolProcessRequestRunning string = "Running"
 
 // PoolProcessRequestFinishing defines a process that is about to finish.
 const PoolProcessRequestFinishing string = "Finishing"
@@ -41,7 +41,7 @@ const PoolProcessRequestReadingHeaders string = "Reading headers"
 // PoolProcessRequestInfo defines a process that is getting request information.
 const PoolProcessRequestInfo string = "Getting request informations"
 
-// PoolProcessRequestFinishing defines a process that is about to end.
+// PoolProcessRequestEnding defines a process that is about to end.
 const PoolProcessRequestEnding string = "Ending"
 
 var log logger
@@ -100,16 +100,14 @@ type PoolProcess struct {
 	LastRequestMemory int     `json:"last request memory"`
 }
 
-// PoolProcessScoreboard holds the calculated metrics for pool processes.
-type PoolProcessScoreboard struct {
-	Active         int64
+// PoolProcessStateCounter holds the calculated metrics for pool processes.
+type PoolProcessStateCounter struct {
+	Running        int64
 	Idle           int64
 	Finishing      int64
 	ReadingHeaders int64
 	Info           int64
 	Ending         int64
-	Unknown        int64
-	Total          int64
 }
 
 // Add will add a pool to the pool manager based on the given URI.
@@ -194,13 +192,24 @@ func (p *Pool) error(err error) error {
 	return err
 }
 
-func CalculateProcessScoreboard(p Pool) PoolProcessScoreboard {
-	pps := PoolProcessScoreboard{}
+// Active calculates the number of active processes.
+func (pps *PoolProcessStateCounter) Active() int64 {
+	return pps.Running + pps.ReadingHeaders
+}
+
+// Total calculates the total number of process (Idle + Active).
+func (pps *PoolProcessStateCounter) Total() int64 {
+	return pps.Idle + pps.Active()
+}
+
+// CalculateProcessScoreboard creates a scoreboard with the calculated process metrics.
+func CalculateProcessScoreboard(p Pool) PoolProcessStateCounter {
+	pps := PoolProcessStateCounter{}
 
 	for idx := range p.Processes {
 		switch p.Processes[idx].State {
-		case PoolProcessRequestActive:
-			pps.Active++
+		case PoolProcessRequestRunning:
+			pps.Running++
 		case PoolProcessRequestIdle:
 			pps.Idle++
 		case PoolProcessRequestEnding:
@@ -212,12 +221,9 @@ func CalculateProcessScoreboard(p Pool) PoolProcessScoreboard {
 		case PoolProcessRequestReadingHeaders:
 			pps.ReadingHeaders++
 		default:
-			pps.Unknown++
 			log.Errorf("Unknown process state '%v'", p.Processes[idx].State)
 		}
 	}
-
-	pps.Total = pps.Active + pps.Idle + pps.Ending + pps.Finishing + pps.Info + pps.ReadingHeaders + pps.Unknown
 
 	return pps
 }
