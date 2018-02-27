@@ -48,6 +48,7 @@ type Exporter struct {
 	processRequests          *prometheus.Desc
 	processLastRequestMemory *prometheus.Desc
 	processLastRequestCPU    *prometheus.Desc
+	processState             *prometheus.Desc
 }
 
 // NewExporter creates a new Exporter for a PoolManager and configures the necessary metrics.
@@ -101,19 +102,19 @@ func NewExporter(pm PoolManager) *Exporter {
 
 		idleProcesses: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "idle_processes"),
-			"The number of idle processes (--fix-process-count will count processes in state Idle).",
+			"The number of idle processes.",
 			[]string{"pool"},
 			nil),
 
 		activeProcesses: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "active_processes"),
-			"The number of active processes (--fix-process-count will count processes in state Running).",
+			"The number of active processes.",
 			[]string{"pool"},
 			nil),
 
 		totalProcesses: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "total_processes"),
-			"The number of idle + active processes (--fix-process-count will count all processes regardless of state).",
+			"The number of idle + active processes.",
 			[]string{"pool"},
 			nil),
 
@@ -152,6 +153,12 @@ func NewExporter(pm PoolManager) *Exporter {
 			"",
 			[]string{"pool", "pid"},
 			nil),
+
+		processState: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "process_state"),
+			"The process state.",
+			[]string{"pool", "pid", "state"},
+			nil),
 	}
 }
 
@@ -172,14 +179,20 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		}
 
 		pps := CalculateProcessScoreboard(pool)
-		if e.CalculateProcessScoreboard == false && (pps.Active != pool.ActiveProcesses || pps.Idle != pool.IdleProcesses) {
+		if !e.CalculateProcessScoreboard && (pps.Active() != pool.ActiveProcesses || pps.Idle != pool.IdleProcesses) {
 			log.Error("Inconsistent active and idle processes reported. Set `--fix-process-count` to have this calculated by php-fpm_exporter instead.")
 		}
 
-		if e.CalculateProcessScoreboard == false {
-			pps.Active = pool.ActiveProcesses
-			pps.Idle = pool.IdleProcesses
-			pps.Total = pool.TotalProcesses
+		var active, idle, total int64
+
+		if e.CalculateProcessScoreboard {
+			active = pool.ActiveProcesses
+			idle = pool.IdleProcesses
+			total = pool.TotalProcesses
+		} else {
+			active = pps.Active()
+			idle = pps.Idle
+			total = pps.Total()
 		}
 
 		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1, pool.Name)
@@ -188,22 +201,21 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(e.listenQueue, prometheus.GaugeValue, float64(pool.ListenQueue), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxListenQueue, prometheus.CounterValue, float64(pool.MaxListenQueue), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.listenQueueLength, prometheus.GaugeValue, float64(pool.ListenQueueLength), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.idleProcesses, prometheus.GaugeValue, float64(pps.Idle), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.activeProcesses, prometheus.GaugeValue, float64(pps.Active), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.totalProcesses, prometheus.GaugeValue, float64(pps.Total), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.idleProcesses, prometheus.GaugeValue, float64(idle), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.activeProcesses, prometheus.GaugeValue, float64(active), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.totalProcesses, prometheus.GaugeValue, float64(total), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxActiveProcesses, prometheus.CounterValue, float64(pool.MaxActiveProcesses), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxChildrenReached, prometheus.CounterValue, float64(pool.MaxChildrenReached), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.slowRequests, prometheus.CounterValue, float64(pool.SlowRequests), pool.Name)
 
 		for _, process := range pool.Processes {
 			pid := calculateProcessHash(process)
+			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, pid, process.State)
 			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, pid)
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, pid)
-			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, float64(process.LastRequestCPU), pool.Name, pid)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, pid)
 		}
 	}
-
-	return
 }
 
 // Describe exposes the metric description to Prometheus
