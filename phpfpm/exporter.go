@@ -171,15 +171,15 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
-		active, idle, total := CalculateProcessScoreboard(pool)
-		if active != pool.ActiveProcesses || idle != pool.IdleProcesses {
+		pps := CalculateProcessScoreboard(pool)
+		if e.CalculateProcessScoreboard == false && (pps.Active != pool.ActiveProcesses || pps.Idle != pool.IdleProcesses) {
 			log.Error("Inconsistent active and idle processes reported. Set `--fix-process-count` to have this calculated by php-fpm_exporter instead.")
 		}
 
 		if e.CalculateProcessScoreboard == false {
-			active = pool.ActiveProcesses
-			idle = pool.IdleProcesses
-			total = pool.TotalProcesses
+			pps.Active = pool.ActiveProcesses
+			pps.Idle = pool.IdleProcesses
+			pps.Total = pool.TotalProcesses
 		}
 
 		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1, pool.Name)
@@ -188,9 +188,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(e.listenQueue, prometheus.GaugeValue, float64(pool.ListenQueue), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxListenQueue, prometheus.CounterValue, float64(pool.MaxListenQueue), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.listenQueueLength, prometheus.GaugeValue, float64(pool.ListenQueueLength), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.idleProcesses, prometheus.GaugeValue, float64(idle), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.activeProcesses, prometheus.GaugeValue, float64(active), pool.Name)
-		ch <- prometheus.MustNewConstMetric(e.totalProcesses, prometheus.GaugeValue, float64(total), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.idleProcesses, prometheus.GaugeValue, float64(pps.Idle), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.activeProcesses, prometheus.GaugeValue, float64(pps.Active), pool.Name)
+		ch <- prometheus.MustNewConstMetric(e.totalProcesses, prometheus.GaugeValue, float64(pps.Total), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxActiveProcesses, prometheus.CounterValue, float64(pool.MaxActiveProcesses), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.maxChildrenReached, prometheus.CounterValue, float64(pool.MaxChildrenReached), pool.Name)
 		ch <- prometheus.MustNewConstMetric(e.slowRequests, prometheus.CounterValue, float64(pool.SlowRequests), pool.Name)

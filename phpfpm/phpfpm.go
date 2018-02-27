@@ -32,6 +32,18 @@ const PoolProcessRequestIdle string = "Idle"
 // PoolProcessRequestIdle defines a process that is active.
 const PoolProcessRequestActive string = "Running"
 
+// PoolProcessRequestFinishing defines a process that is about to finish.
+const PoolProcessRequestFinishing string = "Finishing"
+
+// PoolProcessRequestReadingHeaders defines a process that is reading headers.
+const PoolProcessRequestReadingHeaders string = "Reading headers"
+
+// PoolProcessRequestInfo defines a process that is getting request information.
+const PoolProcessRequestInfo string = "Getting request informations"
+
+// PoolProcessRequestFinishing defines a process that is about to end.
+const PoolProcessRequestEnding string = "Ending"
+
 var log logger
 
 type logger interface {
@@ -86,6 +98,18 @@ type PoolProcess struct {
 	Script            string  `json:"script"`
 	LastRequestCPU    float64 `json:"last request cpu"`
 	LastRequestMemory int     `json:"last request memory"`
+}
+
+// PoolProcessScoreboard holds the calculated metrics for pool processes.
+type PoolProcessScoreboard struct {
+	Active         int64
+	Idle           int64
+	Finishing      int64
+	ReadingHeaders int64
+	Info           int64
+	Ending         int64
+	Unknown        int64
+	Total          int64
 }
 
 // Add will add a pool to the pool manager based on the given URI.
@@ -170,23 +194,32 @@ func (p *Pool) error(err error) error {
 	return err
 }
 
-func CalculateProcessScoreboard(p Pool) (active int64, idle int64, total int64) {
-	active = 0
-	idle = 0
-	total = 0
+func CalculateProcessScoreboard(p Pool) PoolProcessScoreboard {
+	pps := PoolProcessScoreboard{}
 
 	for idx := range p.Processes {
 		switch p.Processes[idx].State {
 		case PoolProcessRequestActive:
-			active++
+			pps.Active++
 		case PoolProcessRequestIdle:
-			idle++
+			pps.Idle++
+		case PoolProcessRequestEnding:
+			pps.Ending++
+		case PoolProcessRequestFinishing:
+			pps.Finishing++
+		case PoolProcessRequestInfo:
+			pps.Info++
+		case PoolProcessRequestReadingHeaders:
+			pps.ReadingHeaders++
 		default:
+			pps.Unknown++
 			log.Errorf("Unknown process state '%v'", p.Processes[idx].State)
 		}
 	}
 
-	return active, idle, active + idle
+	pps.Total = pps.Active + pps.Idle + pps.Ending + pps.Finishing + pps.Info + pps.ReadingHeaders + pps.Unknown
+
+	return pps
 }
 
 type timestamp time.Time
