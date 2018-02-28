@@ -27,11 +27,10 @@ import (
 
 var log = logrus.New()
 
-var (
-	cfgFile  string
-	logLevel string
-	Version  string
-)
+// Version that is being reported by the CLI
+var Version string
+
+var cfgFile, logLevel string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{

@@ -6,6 +6,7 @@
 [![Inline docs](http://inch-ci.org/github/hipages/php-fpm_exporter.svg?branch=master)](http://inch-ci.org/github/hipages/php-fpm_exporter)
 [![Maintainability](https://api.codeclimate.com/v1/badges/52f9e1f0388e8aa38bfe/maintainability)](https://codeclimate.com/github/hipages/php-fpm_exporter/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/52f9e1f0388e8aa38bfe/test_coverage)](https://codeclimate.com/github/hipages/php-fpm_exporter/test_coverage)
+[![Docker Pulls](https://img.shields.io/docker/pulls/hipages/php-fpm_exporter.svg)](https://hub.docker.com/r/hipages/php-fpm_exporter/)
 
 A [prometheus](https://prometheus.io/) exporter for PHP-FPM.
 The exporter connects directly to PHP-FPM and exports the metrics via HTTP.
@@ -37,6 +38,23 @@ The `server` command runs the server required for prometheus to retrieve the sta
 | `--phpfpm.scrape-uri`  | FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status | `PHP_FPM_SCRAPE_URI` | `tcp://127.0.0.1:9000/status` |
 | `--phpfpm.fix-process-count`  | Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers. | `PHP_FPM_FIX_PROCESS_COUNT`| `false` |
 | `--log.level`          | Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal] (default "error") | `PHP_FPM_LOG_LEVEL` | info |
+
+### Why `--phpfpm.fix-process-count`?
+
+`php-fpm_exporter` implements an option to "fix" the reported metrics based on the provided processes list by PHP-FPM.
+
+We have seen PHP-FPM provide metrics (e.g. active processes) which don't match reality.
+Specially `active processes` being larger than `max_children` and the actual number of running processes on the host.
+Looking briefly at the source code of PHP-FPM it appears a scoreboard is being kept and the values are increased/decreased once an action is executed.
+The metric `active processes` is also an accumulation of multiple states (e.g. Reading headers, Getting request information, Running).
+Which shouldn't matter and `active processes` should still be equal or lower to `max_children`.
+
+`--phpfpm.fix-process-count` will emulate PHP-FPMs implementation including the accumulation of multiple states.
+
+If you like to have a more granular reporting please use `phpfpm_process_state`.
+
+* https://bugs.php.net/bug.php?id=76003
+* https://stackoverflow.com/questions/48961556/can-active-processes-be-larger-than-max-children-for-php-fpm
 
 ### CLI Examples
 

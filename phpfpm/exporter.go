@@ -48,6 +48,7 @@ type Exporter struct {
 	processRequests          *prometheus.Desc
 	processLastRequestMemory *prometheus.Desc
 	processLastRequestCPU    *prometheus.Desc
+	processState             *prometheus.Desc
 }
 
 // NewExporter creates a new Exporter for a PoolManager and configures the necessary metrics.
@@ -152,6 +153,12 @@ func NewExporter(pm PoolManager) *Exporter {
 			"",
 			[]string{"pool", "pid"},
 			nil),
+
+		processState: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "process_state"),
+			"The process state.",
+			[]string{"pool", "pid", "state"},
+			nil),
 	}
 }
 
@@ -171,12 +178,12 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
-		active, idle, total := CalculateProcessScoreboard(pool)
-		if active != pool.ActiveProcesses || idle != pool.IdleProcesses {
+		active, idle, total := CountProcessState(pool.Processes)
+		if !e.CalculateProcessScoreboard && (active != pool.ActiveProcesses || idle != pool.IdleProcesses) {
 			log.Error("Inconsistent active and idle processes reported. Set `--fix-process-count` to have this calculated by php-fpm_exporter instead.")
 		}
 
-		if e.CalculateProcessScoreboard == false {
+		if e.CalculateProcessScoreboard {
 			active = pool.ActiveProcesses
 			idle = pool.IdleProcesses
 			total = pool.TotalProcesses
@@ -197,13 +204,12 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 		for _, process := range pool.Processes {
 			pid := calculateProcessHash(process)
+			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, pid, process.State)
 			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, pid)
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, pid)
-			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, float64(process.LastRequestCPU), pool.Name, pid)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, pid)
 		}
 	}
-
-	return
 }
 
 // Describe exposes the metric description to Prometheus

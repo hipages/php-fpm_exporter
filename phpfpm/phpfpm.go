@@ -29,8 +29,20 @@ import (
 // PoolProcessRequestIdle defines a process that is idle.
 const PoolProcessRequestIdle string = "Idle"
 
-// PoolProcessRequestIdle defines a process that is active.
-const PoolProcessRequestActive string = "Running"
+// PoolProcessRequestRunning defines a process that is running.
+const PoolProcessRequestRunning string = "Running"
+
+// PoolProcessRequestFinishing defines a process that is about to finish.
+const PoolProcessRequestFinishing string = "Finishing"
+
+// PoolProcessRequestReadingHeaders defines a process that is reading headers.
+const PoolProcessRequestReadingHeaders string = "Reading headers"
+
+// PoolProcessRequestInfo defines a process that is getting request information.
+const PoolProcessRequestInfo string = "Getting request informations"
+
+// PoolProcessRequestEnding defines a process that is about to end.
+const PoolProcessRequestEnding string = "Ending"
 
 var log logger
 
@@ -85,7 +97,17 @@ type PoolProcess struct {
 	User              string  `json:"user"`
 	Script            string  `json:"script"`
 	LastRequestCPU    float64 `json:"last request cpu"`
-	LastRequestMemory int     `json:"last request memory"`
+	LastRequestMemory int64   `json:"last request memory"`
+}
+
+// PoolProcessStateCounter holds the calculated metrics for pool processes.
+type PoolProcessStateCounter struct {
+	Running        int64
+	Idle           int64
+	Finishing      int64
+	ReadingHeaders int64
+	Info           int64
+	Ending         int64
 }
 
 // Add will add a pool to the pool manager based on the given URI.
@@ -170,19 +192,21 @@ func (p *Pool) error(err error) error {
 	return err
 }
 
-func CalculateProcessScoreboard(p Pool) (active int64, idle int64, total int64) {
-	active = 0
-	idle = 0
-	total = 0
-
-	for idx := range p.Processes {
-		switch p.Processes[idx].State {
-		case PoolProcessRequestActive:
+// CountProcessState return the calculated metrics based on the reported processes.
+func CountProcessState(processes []PoolProcess) (active int64, idle int64, total int64) {
+	for idx := range processes {
+		switch processes[idx].State {
+		case PoolProcessRequestRunning:
 			active++
 		case PoolProcessRequestIdle:
 			idle++
+		case PoolProcessRequestEnding:
+		case PoolProcessRequestFinishing:
+		case PoolProcessRequestInfo:
+		case PoolProcessRequestReadingHeaders:
+			active++
 		default:
-			log.Errorf("Unknown process state '%v'", p.Processes[idx].State)
+			log.Errorf("Unknown process state '%v'", processes[idx].State)
 		}
 	}
 
