@@ -139,25 +139,25 @@ func NewExporter(pm PoolManager) *Exporter {
 		processRequests: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_requests"),
 			"",
-			[]string{"pool", "pid"},
+			[]string{"pool", "pid_hash"},
 			nil),
 
 		processLastRequestMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_last_request_memory"),
 			"",
-			[]string{"pool", "pid"},
+			[]string{"pool", "pid_hash"},
 			nil),
 
 		processLastRequestCPU: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_last_request_cpu"),
 			"",
-			[]string{"pool", "pid"},
+			[]string{"pool", "pid_hash"},
 			nil),
 
 		processState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_state"),
 			"The process state.",
-			[]string{"pool", "pid", "state"},
+			[]string{"pool", "pid_hash", "state"},
 			nil),
 	}
 }
@@ -203,11 +203,11 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(e.slowRequests, prometheus.CounterValue, float64(pool.SlowRequests), pool.Name)
 
 		for _, process := range pool.Processes {
-			pid := calculateProcessHash(process)
-			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, pid, process.State)
-			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, pid)
-			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, pid)
-			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, pid)
+			pidHash := calculateProcessHash(process)
+			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, pidHash, process.State)
+			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, pidHash)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, pidHash)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, pidHash)
 		}
 	}
 }
