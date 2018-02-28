@@ -57,7 +57,7 @@ to quickly create a Cobra application.`,
 
 		if fixProcessCount {
 			log.Info("Idle/Active/Total Processes will be calculated by php-fpm_exporter.")
-			exporter.CalculateProcessScoreboard = true
+			exporter.CountProcessState = true
 		}
 
 		prometheus.MustRegister(exporter)
