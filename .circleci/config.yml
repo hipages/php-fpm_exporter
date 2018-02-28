@@ -7,17 +7,27 @@ jobs:
   test:
     <<: *defaults
     docker:
-      - image: circleci/golang:1.9
+      - image: circleci/golang:1.10
     steps:
       - checkout
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /bin/cc-test-reporter
+            chmod +x /bin/cc-test-reporter
       - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
       - run: dep ensure -vendor-only
-      - run: go test -v ./...
+      - run:
+          name: Run tests
+          command: |
+            cc-test-reporter before-build
+            go test -v -coverprofile=c.out  ./...
+            cc-test-reporter after-build --exit-code $?
 
   lint:
     <<: *defaults
     docker:
-      - image: circleci/golang:1.9
+      - image: circleci/golang:1.10
     steps:
       - checkout
       - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
@@ -28,7 +38,7 @@ jobs:
   deploy:
     <<: *defaults
     docker:
-      - image: circleci/golang:1.9
+      - image: circleci/golang:1.10
     steps:
       - checkout
       - setup_remote_docker:
