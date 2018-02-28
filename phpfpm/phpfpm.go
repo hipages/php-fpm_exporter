@@ -97,7 +97,7 @@ type PoolProcess struct {
 	User              string  `json:"user"`
 	Script            string  `json:"script"`
 	LastRequestCPU    float64 `json:"last request cpu"`
-	LastRequestMemory int     `json:"last request memory"`
+	LastRequestMemory int64   `json:"last request memory"`
 }
 
 // PoolProcessStateCounter holds the calculated metrics for pool processes.
@@ -192,40 +192,25 @@ func (p *Pool) error(err error) error {
 	return err
 }
 
-// Active calculates the number of active processes.
-func (pps *PoolProcessStateCounter) Active() int64 {
-	return pps.Running + pps.ReadingHeaders
-}
-
-// Total calculates the total number of process (Idle + Active).
-func (pps *PoolProcessStateCounter) Total() int64 {
-	return pps.Idle + pps.Active()
-}
-
-// CountProcessState creates a scoreboard with the calculated process metrics.
-func CountProcessState(p Pool) PoolProcessStateCounter {
-	pps := PoolProcessStateCounter{}
-
-	for idx := range p.Processes {
-		switch p.Processes[idx].State {
+// CountProcessState return the calculated metrics based on the reported processes.
+func CountProcessState(processes []PoolProcess) (active int64, idle int64, total int64) {
+	for idx := range processes {
+		switch processes[idx].State {
 		case PoolProcessRequestRunning:
-			pps.Running++
+			active++
 		case PoolProcessRequestIdle:
-			pps.Idle++
+			idle++
 		case PoolProcessRequestEnding:
-			pps.Ending++
 		case PoolProcessRequestFinishing:
-			pps.Finishing++
 		case PoolProcessRequestInfo:
-			pps.Info++
 		case PoolProcessRequestReadingHeaders:
-			pps.ReadingHeaders++
+			active++
 		default:
-			log.Errorf("Unknown process state '%v'", p.Processes[idx].State)
+			log.Errorf("Unknown process state '%v'", processes[idx].State)
 		}
 	}
 
-	return pps
+	return active, idle, active + idle
 }
 
 type timestamp time.Time

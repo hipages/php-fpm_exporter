@@ -178,21 +178,15 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
-		pps := CountProcessState(pool)
-		if !e.CalculateProcessScoreboard && (pps.Active() != pool.ActiveProcesses || pps.Idle != pool.IdleProcesses) {
+		active, idle, total := CountProcessState(pool.Processes)
+		if !e.CalculateProcessScoreboard && (active != pool.ActiveProcesses || idle != pool.IdleProcesses) {
 			log.Error("Inconsistent active and idle processes reported. Set `--fix-process-count` to have this calculated by php-fpm_exporter instead.")
 		}
-
-		var active, idle, total int64
 
 		if e.CalculateProcessScoreboard {
 			active = pool.ActiveProcesses
 			idle = pool.IdleProcesses
 			total = pool.TotalProcesses
-		} else {
-			active = pps.Active()
-			idle = pps.Idle
-			total = pps.Total()
 		}
 
 		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1, pool.Name)
