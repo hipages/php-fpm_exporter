@@ -48,6 +48,7 @@ type Exporter struct {
 	processRequests          *prometheus.Desc
 	processLastRequestMemory *prometheus.Desc
 	processLastRequestCPU    *prometheus.Desc
+	processRequestDuration   *prometheus.Desc
 	processState             *prometheus.Desc
 }
 
@@ -138,25 +139,31 @@ func NewExporter(pm PoolManager) *Exporter {
 
 		processRequests: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_requests"),
-			"",
+			"The number of requests the process has served.",
 			[]string{"pool", "pid_hash"},
 			nil),
 
 		processLastRequestMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_last_request_memory"),
-			"",
+			"The max amount of memory the last request consumed.",
 			[]string{"pool", "pid_hash"},
 			nil),
 
 		processLastRequestCPU: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_last_request_cpu"),
-			"",
+			"The %cpu the last request consumed.",
+			[]string{"pool", "pid_hash"},
+			nil),
+
+		processRequestDuration: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "process_request_duration"),
+			"The duration in microseconds of the requests.",
 			[]string{"pool", "pid_hash"},
 			nil),
 
 		processState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_state"),
-			"The process state.",
+			"The state of the process (Idle, Running, ...).",
 			[]string{"pool", "pid_hash", "state"},
 			nil),
 	}
@@ -208,6 +215,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, pidHash)
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, pidHash)
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, pidHash)
+			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration), pool.Name, pidHash)
 		}
 	}
 }

@@ -120,12 +120,16 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 # TYPE phpfpm_max_children_reached counter
 # HELP phpfpm_max_listen_queue The maximum number of requests in the queue of pending connections since FPM has started.
 # TYPE phpfpm_max_listen_queue counter
-# HELP phpfpm_process_last_request_cpu
+# HELP phpfpm_process_last_request_cpu The %cpu the last request consumed.
 # TYPE phpfpm_process_last_request_cpu gauge
-# HELP phpfpm_process_last_request_memory
+# HELP phpfpm_process_last_request_memory The max amount of memory the last request consumed.
 # TYPE phpfpm_process_last_request_memory gauge
-# HELP phpfpm_process_requests
+# HELP phpfpm_process_request_duration The duration in microseconds of the requests.
+# TYPE phpfpm_process_request_duration gauge
+# HELP phpfpm_process_requests The number of requests the process has served.
 # TYPE phpfpm_process_requests counter
+# HELP phpfpm_process_state The state of the process (Idle, Running, ...).
+# TYPE phpfpm_process_state gauge
 # HELP phpfpm_scrape_failures The number of failures scraping from PHP-FPM.
 # TYPE phpfpm_scrape_failures counter
 # HELP phpfpm_slow_requests The number of requests that exceeded your 'request_slowlog_timeout' value.
