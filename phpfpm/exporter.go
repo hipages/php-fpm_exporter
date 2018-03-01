@@ -222,6 +222,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 // Describe exposes the metric description to Prometheus
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
+	ch <- e.up
 	ch <- e.startSince
 	ch <- e.acceptedConnections
 	ch <- e.listenQueue
@@ -233,6 +234,11 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.maxActiveProcesses
 	ch <- e.maxChildrenReached
 	ch <- e.slowRequests
+	ch <- e.processState
+	ch <- e.processRequests
+	ch <- e.processLastRequestMemory
+	ch <- e.processLastRequestCPU
+	ch <- e.processRequestDuration
 }
 
 // calculateProcessHash generates a unique identifier for a process to ensure uniqueness across multiple systems/containers
