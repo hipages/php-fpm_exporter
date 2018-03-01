@@ -19,6 +19,8 @@ A webserver such as NGINX or Apache is **NOT** needed!
 * Export to CLI as text or JSON
 * Connects directly to PHP-FPM via TCP or Socket
 * Maps environment variables to CLI options
+* Fix for PHP-FPM metrics oddities
+* [Grafana Dashboard](https://grafana.com/dashboards/4912) for Kubernetes
 
 ## Usage
 
@@ -141,6 +143,12 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 # HELP phpfpm_up Could PHP-FPM be reached?
 # TYPE phpfpm_up gauge
 ```
+
+## Grafana Dasbhoard for Kubernetes
+
+The Grafana dashboard can be found [here](https://grafana.com/dashboards/4912) .
+
+<img src="https://grafana.com/api/dashboards/4912/images/3079/image" width="600">
 
 ## Contributing
 
