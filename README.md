@@ -146,7 +146,7 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 
 ## Grafana Dasbhoard for Kubernetes
 
-The Grafana dashboard can be found [here](https://grafana.com/dashboards/4912) .
+The Grafana dashboard can be found [here](https://grafana.com/dashboards/4912).
 
 <img src="https://grafana.com/api/dashboards/4912/images/3079/image" width="600">
 
