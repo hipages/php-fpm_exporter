@@ -127,7 +127,22 @@ func (pm *PoolManager) Update() (err error) {
 		wg.Add(1)
 		go func(p *Pool) {
 			defer wg.Done()
-			p.Update()
+
+			uri, err := url.Parse(p.Address)
+			if err != nil {
+				p.error(err)
+				return
+			}
+
+			connectPath := ""
+			if uri.Scheme == "unix" {
+				connectPath = uri.Path
+			} else {
+				connectPath = uri.Host
+			}
+			log.Infof("connectPath: %s", connectPath)
+
+			p.Update(uri.Scheme, connectPath)
 		}(&pm.Pools[idx])
 	}
 
@@ -141,7 +156,7 @@ func (pm *PoolManager) Update() (err error) {
 }
 
 // Update will connect to PHP-FPM and retrieve the latest data for the pool.
-func (p *Pool) Update() (err error) {
+func (p *Pool) Update(schema, path string) (err error) {
 	p.ScrapeError = nil
 
 	env := map[string]string{
@@ -152,20 +167,7 @@ func (p *Pool) Update() (err error) {
 		"QUERY_STRING":    "json&full",
 	}
 
-	uri, err := url.Parse(p.Address)
-	if err != nil {
-		return p.error(err)
-	}
-
-	connectPath := ""
-	if uri.Scheme == "unix" {
-		connectPath = uri.Path
-	} else {
-		connectPath = uri.Host
-	}
-	log.Infof("connectPath: %s", connectPath)
-
-	fcgi, err := fcgiclient.DialTimeout(uri.Scheme, connectPath, time.Duration(3)*time.Second)
+	fcgi, err := fcgiclient.DialTimeout(schema, path, time.Duration(3)*time.Second)
 	if err != nil {
 		return p.error(err)
 	}
