@@ -157,7 +157,15 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
-	fcgi, err := fcgiclient.DialTimeout(uri.Scheme, uri.Hostname()+":"+uri.Port(), time.Duration(3)*time.Second)
+	connectPath := ""
+	if uri.Scheme == "unix" {
+		connectPath = uri.Path
+	} else {
+		connectPath = uri.Host
+	}
+	log.Infof("connectPath: %s", connectPath)
+
+	fcgi, err := fcgiclient.DialTimeout(uri.Scheme, connectPath, time.Duration(3)*time.Second)
 	if err != nil {
 		return p.error(err)
 	}
