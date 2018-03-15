@@ -158,8 +158,10 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
-	env["SCRIPT_FILENAME"] = statusPath
-	env["SCRIPT_NAME"] = statusPath
+	if statusPath != "" {
+		env["SCRIPT_FILENAME"] = statusPath
+		env["SCRIPT_NAME"] = statusPath
+	}
 
 	defer fcgi.Close()
 
@@ -191,34 +193,21 @@ func (p *Pool) connect(address string) (fcgi *fcgiclient.FCGIClient, statusPath 
 	}
 
 	connectPath := ""
+	statusPath = "/status"
 	if uri.Scheme == "unix" {
 		connectPath = uri.Path
-		statusPath = getStatusPath(uri.Scheme, p.Address)
-	} else {
-		connectPath = uri.Host
-		statusPath = getStatusPath(uri.Scheme, uri.Path)
-	}
-
-	fcgi, err = fcgiclient.DialTimeout(uri.Scheme, connectPath, time.Duration(3)*time.Second)
-
-	return
-}
-
-func getStatusPath(scheme, address string) string {
-	statusPath := "/status"
-
-	if scheme == "unix" {
 		semicolonIndex := strings.Index(address, ";")
 		if semicolonIndex != -1 {
 			statusPath = address[semicolonIndex+1:]
 		}
 	} else {
-		if address != "" {
-			statusPath = address
-		}
+		connectPath = uri.Host
+		statusPath = uri.Path
 	}
 
-	return statusPath
+	fcgi, err = fcgiclient.DialTimeout(uri.Scheme, connectPath, time.Duration(3)*time.Second)
+
+	return
 }
 
 func (p *Pool) error(err error) error {
