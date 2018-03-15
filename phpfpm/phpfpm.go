@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -152,10 +153,13 @@ func (p *Pool) Update() (err error) {
 		"QUERY_STRING":    "json&full",
 	}
 
-	fcgi, err := p.connect(p.Address)
+	fcgi, statusPath, err := p.connect(p.Address)
 	if err != nil {
 		return p.error(err)
 	}
+
+	env["SCRIPT_FILENAME"] = statusPath
+	env["SCRIPT_NAME"] = statusPath
 
 	defer fcgi.Close()
 
@@ -180,19 +184,26 @@ func (p *Pool) Update() (err error) {
 	return nil
 }
 
-func (p *Pool) connect(address string) (fcgi *fcgiclient.FCGIClient, err error) {
+func (p *Pool) connect(address string) (fcgi *fcgiclient.FCGIClient, statusPath string, err error) {
 	uri, err := url.Parse(p.Address)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	connectPath := ""
+	statusPath = "/status"
 	if uri.Scheme == "unix" {
 		connectPath = uri.Path
+		semicolonIndex := strings.Index(p.Address, ";")
+		if semicolonIndex != -1 {
+			statusPath = p.Address[semicolonIndex+1:]
+		}
 	} else {
 		connectPath = uri.Host
+		if uri.Path != "" {
+			statusPath = uri.Path
+		}
 	}
-	log.Infof("connectPath: %s", connectPath)
 
 	fcgi, err = fcgiclient.DialTimeout(uri.Scheme, connectPath, time.Duration(3)*time.Second)
 
