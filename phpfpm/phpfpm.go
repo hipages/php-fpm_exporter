@@ -191,23 +191,34 @@ func (p *Pool) connect(address string) (fcgi *fcgiclient.FCGIClient, statusPath 
 	}
 
 	connectPath := ""
-	statusPath = "/status"
 	if uri.Scheme == "unix" {
 		connectPath = uri.Path
-		semicolonIndex := strings.Index(p.Address, ";")
-		if semicolonIndex != -1 {
-			statusPath = p.Address[semicolonIndex+1:]
-		}
+		statusPath = getStatusPath(uri.Scheme, p.Address)
 	} else {
 		connectPath = uri.Host
-		if uri.Path != "" {
-			statusPath = uri.Path
-		}
+		statusPath = getStatusPath(uri.Scheme, uri.Path)
 	}
 
 	fcgi, err = fcgiclient.DialTimeout(uri.Scheme, connectPath, time.Duration(3)*time.Second)
 
 	return
+}
+
+func getStatusPath(scheme, address string) string {
+	statusPath := "/status"
+
+	if scheme == "unix" {
+		semicolonIndex := strings.Index(address, ";")
+		if semicolonIndex != -1 {
+			statusPath = address[semicolonIndex+1:]
+		}
+	} else {
+		if address != "" {
+			statusPath = address
+		}
+	}
+
+	return statusPath
 }
 
 func (p *Pool) error(err error) error {
