@@ -145,7 +145,7 @@ func (pm *PoolManager) Update() (err error) {
 func (p *Pool) Update() (err error) {
 	p.ScrapeError = nil
 
-	scheme, address, path, err := parseUrl(p.Address)
+	scheme, address, path, err := parseURL(p.Address)
 	if err != nil {
 		return p.error(err)
 	}
@@ -214,8 +214,8 @@ func CountProcessState(processes []PoolProcess) (active int64, idle int64, total
 	return active, idle, active + idle
 }
 
-// parseUrl creates elements to be passed into fcgiclient.DialTimeout
-func parseUrl(rawurl string) (scheme string, address string, path string, err error) {
+// parseURL creates elements to be passed into fcgiclient.DialTimeout
+func parseURL(rawurl string) (scheme string, address string, path string, err error) {
 	uri, err := url.Parse(rawurl)
 	if err != nil {
 		return uri.Scheme, uri.Host, uri.Path, err
