@@ -107,7 +107,7 @@ func TestParseURL(t *testing.T) {
 	}
 
 	for _, u := range uris {
-		scheme, address, path, err := parseUrl(u.in)
+		scheme, address, path, err := parseURL(u.in)
 		assert.Equal(t, u.err, err)
 		assert.Equal(t, u.out, []string{scheme, address, path})
 	}
