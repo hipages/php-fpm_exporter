@@ -150,6 +150,13 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
+	fcgi, err := fcgiclient.DialTimeout(scheme, address, time.Duration(3)*time.Second)
+	if err != nil {
+		return p.error(err)
+	}
+
+	defer fcgi.Close()
+
 	env := map[string]string{
 		"SCRIPT_FILENAME": path,
 		"SCRIPT_NAME":     path,
@@ -157,13 +164,6 @@ func (p *Pool) Update() (err error) {
 		"REMOTE_ADDR":     "127.0.0.1",
 		"QUERY_STRING":    "json&full",
 	}
-
-	fcgi, err := fcgiclient.DialTimeout(scheme, address, time.Duration(3)*time.Second)
-	if err != nil {
-		return p.error(err)
-	}
-
-	defer fcgi.Close()
 
 	resp, err := fcgi.Get(env)
 	if err != nil {
