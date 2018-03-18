@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -144,25 +145,25 @@ func (pm *PoolManager) Update() (err error) {
 func (p *Pool) Update() (err error) {
 	p.ScrapeError = nil
 
-	env := map[string]string{
-		"SCRIPT_FILENAME": "/status",
-		"SCRIPT_NAME":     "/status",
-		"SERVER_SOFTWARE": "go / php-fpm_exporter",
-		"REMOTE_ADDR":     "127.0.0.1",
-		"QUERY_STRING":    "json&full",
-	}
-
-	uri, err := url.Parse(p.Address)
+	scheme, address, path, err := parseURL(p.Address)
 	if err != nil {
 		return p.error(err)
 	}
 
-	fcgi, err := fcgiclient.DialTimeout(uri.Scheme, uri.Hostname()+":"+uri.Port(), time.Duration(3)*time.Second)
+	fcgi, err := fcgiclient.DialTimeout(scheme, address, time.Duration(3)*time.Second)
 	if err != nil {
 		return p.error(err)
 	}
 
 	defer fcgi.Close()
+
+	env := map[string]string{
+		"SCRIPT_FILENAME": path,
+		"SCRIPT_NAME":     path,
+		"SERVER_SOFTWARE": "go / php-fpm_exporter",
+		"REMOTE_ADDR":     "127.0.0.1",
+		"QUERY_STRING":    "json&full",
+	}
 
 	resp, err := fcgi.Get(env)
 	if err != nil {
@@ -211,6 +212,30 @@ func CountProcessState(processes []PoolProcess) (active int64, idle int64, total
 	}
 
 	return active, idle, active + idle
+}
+
+// parseURL creates elements to be passed into fcgiclient.DialTimeout
+func parseURL(rawurl string) (scheme string, address string, path string, err error) {
+	uri, err := url.Parse(rawurl)
+	if err != nil {
+		return uri.Scheme, uri.Host, uri.Path, err
+	}
+
+	scheme = uri.Scheme
+
+	switch uri.Scheme {
+	case "unix":
+		result := strings.Split(uri.Path, ";")
+		address = result[0]
+		if len(result) > 1 {
+			path = result[1]
+		}
+	default:
+		address = uri.Host
+		path = uri.Path
+	}
+
+	return
 }
 
 type timestamp time.Time

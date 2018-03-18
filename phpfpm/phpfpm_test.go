@@ -93,3 +93,22 @@ func TestCannotUnmarshalNumberIssue10(t *testing.T) {
 
 	assert.NotNil(t, err, err.Error())
 }
+
+func TestParseURL(t *testing.T) {
+	var uris = []struct {
+		in  string
+		out []string
+		err error
+	}{
+		{"tcp://127.0.0.1:9000/status", []string{"tcp", "127.0.0.1:9000", "/status"}, nil},
+		{"tcp://127.0.0.1", []string{"tcp", "127.0.0.1", ""}, nil},
+		{"unix:///tmp/php.sock;/status", []string{"unix", "/tmp/php.sock", "/status"}, nil},
+		{"unix:///tmp/php.sock", []string{"unix", "/tmp/php.sock", ""}, nil},
+	}
+
+	for _, u := range uris {
+		scheme, address, path, err := parseURL(u.in)
+		assert.Equal(t, u.err, err)
+		assert.Equal(t, u.out, []string{scheme, address, path})
+	}
+}
