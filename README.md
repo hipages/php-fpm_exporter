@@ -7,6 +7,8 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/52f9e1f0388e8aa38bfe/maintainability)](https://codeclimate.com/github/hipages/php-fpm_exporter/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/52f9e1f0388e8aa38bfe/test_coverage)](https://codeclimate.com/github/hipages/php-fpm_exporter/test_coverage)
 [![Docker Pulls](https://img.shields.io/docker/pulls/hipages/php-fpm_exporter.svg)](https://hub.docker.com/r/hipages/php-fpm_exporter/)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Percentage of issues still open")
 
 A [prometheus](https://prometheus.io/) exporter for PHP-FPM.
 The exporter connects directly to PHP-FPM and exports the metrics via HTTP.
