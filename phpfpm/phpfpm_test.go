@@ -91,7 +91,9 @@ func TestCannotUnmarshalNumberIssue10(t *testing.T) {
 
 	err := json.Unmarshal(content, &pool)
 
-	assert.NotNil(t, err, err.Error())
+	assert.Nil(t, err, "successfully unmarshal on invalid 'request duration'")
+	assert.Equal(t, int(pool.Processes[0].RequestDuration), 295, "request duration set to 0 because it couldn't be deserialized")
+	assert.Equal(t, int(pool.Processes[1].RequestDuration), 0, "request duration set to 0 because it couldn't be deserialized")
 }
 
 func TestParseURL(t *testing.T) {
