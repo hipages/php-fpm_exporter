@@ -27,7 +27,6 @@ jobs:
             CC_TEST_REPORTER_ID=5a29fe5d2c613af8a8a4f41f8e3a0a0d74895ecc6dc5deb84664ad46a48d1ce6 ./cc-test-reporter after-build --exit-code $?
 
   release:
-    <<: *defaults
     docker:
       - image: circleci/node:9
     steps:
