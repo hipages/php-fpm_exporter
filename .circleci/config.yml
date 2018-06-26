@@ -55,10 +55,6 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - lint:
-          filters:
-            tags:
-              only: /^v.*/
       - release:
           filters:
             branches:
