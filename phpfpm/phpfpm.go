@@ -84,21 +84,23 @@ type Pool struct {
 	Processes           []PoolProcess `json:"processes"`
 }
 
+type requestDuration int64
+
 // PoolProcess describes a single PHP-FPM process. A pool can have multiple processes.
 type PoolProcess struct {
-	PID               int64   `json:"pid"`
-	State             string  `json:"state"`
-	StartTime         int64   `json:"start time"`
-	StartSince        int64   `json:"start since"`
-	Requests          int64   `json:"requests"`
-	RequestDuration   int64   `json:"request duration"`
-	RequestMethod     string  `json:"request method"`
-	RequestURI        string  `json:"request uri"`
-	ContentLength     int64   `json:"content length"`
-	User              string  `json:"user"`
-	Script            string  `json:"script"`
-	LastRequestCPU    float64 `json:"last request cpu"`
-	LastRequestMemory int64   `json:"last request memory"`
+	PID               int64           `json:"pid"`
+	State             string          `json:"state"`
+	StartTime         int64           `json:"start time"`
+	StartSince        int64           `json:"start since"`
+	Requests          int64           `json:"requests"`
+	RequestDuration   requestDuration `json:"request duration"`
+	RequestMethod     string          `json:"request method"`
+	RequestURI        string          `json:"request uri"`
+	ContentLength     int64           `json:"content length"`
+	User              string          `json:"user"`
+	Script            string          `json:"script"`
+	LastRequestCPU    float64         `json:"last request cpu"`
+	LastRequestMemory int64           `json:"last request memory"`
 }
 
 // PoolProcessStateCounter holds the calculated metrics for pool processes.
@@ -254,6 +256,23 @@ func (t *timestamp) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*t = timestamp(time.Unix(int64(ts), 0))
+	return nil
+}
+
+// MarshalJSON customise JSON for timestamp
+func (rd *requestDuration) MarshalJSON() ([]byte, error) {
+	stamp := fmt.Sprint(rd)
+	return []byte(stamp), nil
+}
+
+// UnmarshalJSON customise JSON for timestamp
+func (rd *requestDuration) UnmarshalJSON(b []byte) error {
+	rdc, err := strconv.Atoi(string(b))
+	if err != nil {
+		*rd = 0
+	} else {
+		*rd = requestDuration(rdc)
+	}
 	return nil
 }
 
