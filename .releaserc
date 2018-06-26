@@ -1,0 +1,6 @@
+---
+repositoryUrl: https://github.com/hipages/php-fpm_exporter
+verifyConditions: ['@semantic-release/github']
+prepare: []
+success: ['@semantic-release/github']
+fail: ['@semantic-release/github']

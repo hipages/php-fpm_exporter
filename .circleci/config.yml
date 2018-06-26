@@ -17,23 +17,23 @@ jobs:
             chmod +x ./cc-test-reporter
       - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
       - run: dep ensure -vendor-only
+      - run: curl -L -s https://github.com/alecthomas/gometalinter/releases/download/v2.0.5/gometalinter-2.0.5-linux-amd64.tar.gz | tar xvfz - -C /go/bin/ --strip 1
+      - run: gometalinter --disable-all --enable=megacheck --enable=golint --enable=unconvert --enable=vet --enable=vetshadow --vendor ./...
       - run:
           name: Run tests
           command: |
-            ./cc-test-reporter before-build
+            CC_TEST_REPORTER_ID=5a29fe5d2c613af8a8a4f41f8e3a0a0d74895ecc6dc5deb84664ad46a48d1ce6 ./cc-test-reporter before-build
             go test -v -coverprofile=c.out  ./...
             CC_TEST_REPORTER_ID=5a29fe5d2c613af8a8a4f41f8e3a0a0d74895ecc6dc5deb84664ad46a48d1ce6 ./cc-test-reporter after-build --exit-code $?
 
-  lint:
+  release:
     <<: *defaults
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/node:9
     steps:
       - checkout
-      - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
-      - run: dep ensure -vendor-only
-      - run: curl -L -s https://github.com/alecthomas/gometalinter/releases/download/v2.0.5/gometalinter-2.0.5-linux-amd64.tar.gz | tar xvfz - -C /go/bin/ --strip 1
-      - run: gometalinter --disable-all --enable=megacheck --enable=golint --enable=unconvert --enable=vet --enable=vetshadow --vendor ./...
+      - run: yarn global add --prefer-offline --no-progress --non-interactive "semantic-release@15.5.0" "@semantic-release/exec@2.2.4"
+      - run: $(yarn global bin)/semantic-release
 
   deploy:
     <<: *defaults
@@ -41,8 +41,7 @@ jobs:
       - image: circleci/golang:1.10
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
+      - setup_remote_docker
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
       - run: dep ensure -vendor-only
@@ -60,6 +59,10 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - release:
+          filters:
+            branches:
+              only: master
       - deploy:
           requires:
             - test
