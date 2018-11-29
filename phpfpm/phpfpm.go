@@ -198,7 +198,7 @@ func (p *Pool) error(err error) error {
 	return err
 }
 
-// JsonResponseFixer resolves encoding issues with PHP-FPMs JSON response
+// JSONResponseFixer resolves encoding issues with PHP-FPMs JSON response
 func JSONResponseFixer(content []byte) []byte {
 	c := string(content)
 	re := regexp.MustCompile(`(,"request uri":)"(.*?)"(,"content length":)`)
