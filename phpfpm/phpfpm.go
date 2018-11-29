@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -179,6 +180,8 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
+	content = JsonResponseFixer(content)
+
 	log.Debugf("Pool[%v]: %v", p.Address, string(content))
 
 	if err = json.Unmarshal(content, &p); err != nil {
@@ -193,6 +196,23 @@ func (p *Pool) error(err error) error {
 	p.ScrapeFailures++
 	log.Error(err)
 	return err
+}
+
+func JsonResponseFixer(content []byte) []byte {
+	c := string(content)
+	re := regexp.MustCompile(`(,"request uri":)"(.*?)"(,"content length":)`)
+	matches := re.FindAllStringSubmatch(c, -1)
+
+	for _, match := range matches {
+		requestURI, _ := json.Marshal(match[2])
+
+		sold := match[0]
+		snew := match[1] + string(requestURI) + match[3]
+
+		c = strings.Replace(c, sold, snew, -1)
+	}
+
+	return []byte(c)
 }
 
 // CountProcessState return the calculated metrics based on the reported processes.
