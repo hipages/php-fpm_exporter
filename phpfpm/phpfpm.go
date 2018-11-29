@@ -180,7 +180,7 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
-	content = JsonResponseFixer(content)
+	content = JSONResponseFixer(content)
 
 	log.Debugf("Pool[%v]: %v", p.Address, string(content))
 
@@ -199,7 +199,7 @@ func (p *Pool) error(err error) error {
 }
 
 // JsonResponseFixer resolves encoding issues with PHP-FPMs JSON response
-func JsonResponseFixer(content []byte) []byte {
+func JSONResponseFixer(content []byte) []byte {
 	c := string(content)
 	re := regexp.MustCompile(`(,"request uri":)"(.*?)"(,"content length":)`)
 	matches := re.FindAllStringSubmatch(c, -1)
