@@ -1,14 +1,14 @@
 # php-fpm_exporter
 
-[![CircleCI](https://circleci.com/gh/hipages/php-fpm_exporter.svg?style=svg)](https://circleci.com/gh/hipages/php-fpm_exporter)
+[![CircleCI](https://circleci.com/gh/hipages/php-fpm_exporter.svg?style=shield)](https://circleci.com/gh/hipages/php-fpm_exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hipages/php-fpm_exporter)](https://goreportcard.com/report/github.com/hipages/php-fpm_exporter)
 [![GoDoc](https://godoc.org/github.com/hipages/php-fpm_exporter?status.svg)](https://godoc.org/github.com/hipages/php-fpm_exporter)
-[![Inline docs](http://inch-ci.org/github/hipages/php-fpm_exporter.svg?branch=master)](http://inch-ci.org/github/hipages/php-fpm_exporter)
 [![Maintainability](https://api.codeclimate.com/v1/badges/52f9e1f0388e8aa38bfe/maintainability)](https://codeclimate.com/github/hipages/php-fpm_exporter/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/52f9e1f0388e8aa38bfe/test_coverage)](https://codeclimate.com/github/hipages/php-fpm_exporter/test_coverage)
 [![Docker Pulls](https://img.shields.io/docker/pulls/hipages/php-fpm_exporter.svg)](https://hub.docker.com/r/hipages/php-fpm_exporter/)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Percentage of issues still open")
+[![Open Source Helpers](https://www.codetriage.com/hipages/php-fpm_exporter/badges/users.svg)](https://www.codetriage.com/hipages/php-fpm_exporter)
 
 A [prometheus](https://prometheus.io/) exporter for PHP-FPM.
 The exporter connects directly to PHP-FPM and exports the metrics via HTTP.
