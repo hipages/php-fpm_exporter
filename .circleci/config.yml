@@ -15,8 +15,7 @@ jobs:
       - run:
           name: Install gometalinter
           command: curl -L https://git.io/vp6lP | sudo BINDIR=/go/bin sh
-      - run: make lint
-      - run: make test
+      - run: make deps lint test
       - run:
           name: Upload Code coverage
           command: ./cc-test-reporter after-build -i .cover/cover.out
