@@ -1,5 +1,4 @@
 defaults: &defaults
-  working_directory: /go/src/github.com/hipages/php-fpm_exporter
 
 version: 2
 jobs:
