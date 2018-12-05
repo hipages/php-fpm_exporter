@@ -4,6 +4,9 @@
 help: ## List targets & descriptions
 	@cat Makefile* | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+deps: ## Get dependencies
+	go get -d -v ./...
+
 test: ## Run tests
 	go test -short ./...
 
@@ -23,4 +26,4 @@ fmt: ## Fix formatting issues
 	goimports -w .
 
 gometalinter:
-	CGO_ENABLED=0 gometalinter --disable-all --enable=megacheck --enable=golint --enable=unconvert --enable=vet --enable=vetshadow --vendor ./...
+	CGO_ENABLED=0 gometalinter --disable-all --enable=golint --enable=unconvert --enable=vet --enable=vetshadow --vendor ./...
