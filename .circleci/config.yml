@@ -1,10 +1,7 @@
-defaults: &defaults
-
 version: 2
 jobs:
 
   test:
-    <<: *defaults
     docker:
       - image: circleci/golang:1.11
     steps:
@@ -33,7 +30,6 @@ jobs:
       - run: $(yarn global bin)/semantic-release
 
   deploy:
-    <<: *defaults
     docker:
       - image: circleci/golang:1.10
     steps:
