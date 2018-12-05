@@ -18,7 +18,7 @@ jobs:
             ./cc-test-reporter before-build
       - run:
           name: Install gometalinter
-          command: curl -L https://git.io/vp6lP | BINDIR=/go/bin sudo sh
+          command: curl -L https://git.io/vp6lP | sudo BINDIR=/go/bin sh
       - run: make lint
       - run: make test
       - run:
