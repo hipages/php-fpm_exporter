@@ -10,11 +10,11 @@ deps: ## Get dependencies
 test: ## Run tests
 	go test -short ./...
 
-test-coverage:
+test-coverage: ## Create a code coverage report
 	mkdir -p .cover
 	go test -coverprofile .cover/cover.out ./...
 
-test-coverage-html:
+test-coverage-html: ## Create a code coverage report in HTML
 	mkdir -p .cover
 	go test -coverprofile .cover/cover.out ./...
 	go tool cover -html .cover/cover.out
