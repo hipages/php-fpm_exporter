@@ -15,10 +15,13 @@ jobs:
       - run:
           name: Install gometalinter
           command: curl -L https://git.io/vp6lP | sudo BINDIR=/go/bin sh
-      - run: make deps lint test
+      - run: make deps lint test-coverage
       - run:
           name: Upload Code coverage
-          command: ./cc-test-reporter after-build -i .cover/cover.out
+          command: |
+            sed -i 's#github.com/hipages/php-fpm_exporter/##' .cover/cover.out
+            ./cc-test-reporter format-coverage -t gocov .cover/cover.out
+            ./cc-test-reporter upload-coverage
 
   semantic-release:
     docker:
