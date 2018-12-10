@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tomasen/fcgi_client"
+	fcgiclient "github.com/tomasen/fcgi_client"
 )
 
 // PoolProcessRequestIdle defines a process that is idle.

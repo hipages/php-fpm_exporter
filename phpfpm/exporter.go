@@ -18,7 +18,7 @@ import (
 	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/speps/go-hashids"
+	hashids "github.com/speps/go-hashids"
 )
 
 const (

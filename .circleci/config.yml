@@ -1,32 +1,29 @@
-defaults: &defaults
-  working_directory: /go/src/github.com/hipages/php-fpm_exporter
-
 version: 2
 jobs:
 
   test:
-    <<: *defaults
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.11
     steps:
       - checkout
       - run:
-          name: Setup Code Climate test-reporter
+          name: Install Code Climate test-reporter
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
-      - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
-      - run: dep ensure -vendor-only
-      - run: curl -L -s https://github.com/alecthomas/gometalinter/releases/download/v2.0.5/gometalinter-2.0.5-linux-amd64.tar.gz | tar xvfz - -C /go/bin/ --strip 1
-      - run: gometalinter --disable-all --enable=megacheck --enable=golint --enable=unconvert --enable=vet --enable=vetshadow --vendor ./...
+            ./cc-test-reporter before-build
       - run:
-          name: Run tests
+          name: Install gometalinter
+          command: curl -L https://git.io/vp6lP | sudo BINDIR=/go/bin sh
+      - run: make deps lint test-coverage
+      - run:
+          name: Upload Code coverage
           command: |
-            CC_TEST_REPORTER_ID=5a29fe5d2c613af8a8a4f41f8e3a0a0d74895ecc6dc5deb84664ad46a48d1ce6 ./cc-test-reporter before-build
-            go test -v -coverprofile=c.out  ./...
-            CC_TEST_REPORTER_ID=5a29fe5d2c613af8a8a4f41f8e3a0a0d74895ecc6dc5deb84664ad46a48d1ce6 ./cc-test-reporter after-build --exit-code $?
+            sed -i 's#github.com/hipages/php-fpm_exporter/##' .cover/cover.out
+            ./cc-test-reporter format-coverage -t gocov .cover/cover.out
+            ./cc-test-reporter upload-coverage
 
-  release:
+  semantic-release:
     docker:
       - image: circleci/node:9
     steps:
@@ -35,15 +32,12 @@ jobs:
       - run: $(yarn global bin)/semantic-release
 
   deploy:
-    <<: *defaults
     docker:
       - image: circleci/golang:1.10
     steps:
       - checkout
       - setup_remote_docker
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: curl -L -s https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /go/bin/dep && chmod +x /go/bin/dep
-      - run: dep ensure -vendor-only
       - run: curl -sL https://git.io/goreleaser | bash
 
 workflows:
@@ -54,7 +48,7 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - release:
+      - semantic-release:
           requires:
             - test
           filters:
