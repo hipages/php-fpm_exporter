@@ -19,12 +19,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	fcgiclient "github.com/tomasen/fcgi_client"
+	"github.com/tomasen/fcgi_client"
 )
 
 // PoolProcessRequestIdle defines a process that is idle.
@@ -179,9 +180,12 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
+	content = JSONResponseFixer(content)
+
 	log.Debugf("Pool[%v]: %v", p.Address, string(content))
 
 	if err = json.Unmarshal(content, &p); err != nil {
+		log.Errorf("Pool[%v]: %v", p.Address, string(content))
 		return p.error(err)
 	}
 
@@ -193,6 +197,24 @@ func (p *Pool) error(err error) error {
 	p.ScrapeFailures++
 	log.Error(err)
 	return err
+}
+
+// JSONResponseFixer resolves encoding issues with PHP-FPMs JSON response
+func JSONResponseFixer(content []byte) []byte {
+	c := string(content)
+	re := regexp.MustCompile(`(,"request uri":)"(.*?)"(,"content length":)`)
+	matches := re.FindAllStringSubmatch(c, -1)
+
+	for _, match := range matches {
+		requestURI, _ := json.Marshal(match[2])
+
+		sold := match[0]
+		snew := match[1] + string(requestURI) + match[3]
+
+		c = strings.Replace(c, sold, snew, -1)
+	}
+
+	return []byte(c)
 }
 
 // CountProcessState return the calculated metrics based on the reported processes.
