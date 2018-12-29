@@ -246,7 +246,7 @@ func calculateProcessHash(pp PoolProcess) string {
 	hd := hashids.NewData()
 	hd.Salt = "php-fpm_exporter"
 	hd.MinLength = 12
-	h := hashids.NewWithData(hd)
+	h, _ := hashids.NewWithData(hd)
 	e, _ := h.Encode([]int{int(pp.StartTime), int(pp.PID)})
 
 	return e
