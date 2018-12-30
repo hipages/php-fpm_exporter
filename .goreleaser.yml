@@ -10,7 +10,15 @@ builds:
       - amd64
 
 dockers:
-  - image: hipages/php-fpm_exporter
+  - image_templates:
+      - "hipages/php-fpm_exporter:latest"
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}"
+      - "hipages/php-fpm_exporter:{{ .Major }}"
+    build_flag_templates:
+      - "--build-arg=VERSION={{.Version}}"
+      - "--build-arg=BUILD_DATE={{.Date}}"
+      - "--build-arg=VCS_REF={{.FullCommit}}"
 
 archive:
   format: binary
