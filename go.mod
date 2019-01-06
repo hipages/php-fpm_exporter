@@ -10,6 +10,6 @@ require (
 	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1
-	github.com/stretchr/testify v1.2.2
+	github.com/stretchr/testify v1.3.0
 	github.com/tomasen/fcgi_client v0.0.0-20180423082037-2bb3d819fd19
 )
