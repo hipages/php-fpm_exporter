@@ -8,6 +8,48 @@
   ],
   "imageSize": 100,
   "commit": false,
-  "contributors": [],
+  "contributors": [
+    {
+      "login": "estahn",
+      "name": "Enrico Stahn",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/362174?v=4",
+      "profile": "http://enricostahn.com",
+      "contributions": [
+        "question",
+        "code",
+        "doc",
+        "maintenance",
+        "test"
+      ]
+    },
+    {
+      "login": "XooR",
+      "name": "Stanislav Antic",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/120429?v=4",
+      "profile": "https://github.com/XooR",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "herb123456",
+      "name": "herb",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/1568165?v=4",
+      "profile": "http://herb123456.blogspot.com/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Nyoroon",
+      "name": "Smoked Cheese",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/182203?v=4",
+      "profile": "https://github.com/Nyoroon",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    }
+  ],
   "contributorsPerLine": 7
 }

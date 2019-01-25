@@ -1,5 +1,4 @@
 # php-fpm_exporter
-[![All Contributors](https://img.shields.io/badge/all_contributors-0-orange.svg?style=flat-square)](#contributors)
 
 [![CircleCI](https://circleci.com/gh/hipages/php-fpm_exporter.svg?style=shield)](https://circleci.com/gh/hipages/php-fpm_exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hipages/php-fpm_exporter)](https://goreportcard.com/report/github.com/hipages/php-fpm_exporter)
@@ -10,6 +9,7 @@
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Percentage of issues still open")
 [![Open Source Helpers](https://www.codetriage.com/hipages/php-fpm_exporter/badges/users.svg)](https://www.codetriage.com/hipages/php-fpm_exporter)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors)
 
 A [prometheus](https://prometheus.io/) exporter for PHP-FPM.
 The exporter connects directly to PHP-FPM and exports the metrics via HTTP.
@@ -182,6 +182,8 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/all-contri
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
+| [<img src="https://avatars3.githubusercontent.com/u/362174?v=4" width="100px;" alt="Enrico Stahn"/><br /><sub><b>Enrico Stahn</b></sub>](http://enricostahn.com)<br />[💬](#question-estahn "Answering Questions") [💻](https://github.com/hipages/php-fpm_exporter/commits?author=estahn "Code") [📖](https://github.com/hipages/php-fpm_exporter/commits?author=estahn "Documentation") [🚧](#maintenance-estahn "Maintenance") [⚠️](https://github.com/hipages/php-fpm_exporter/commits?author=estahn "Tests") | [<img src="https://avatars2.githubusercontent.com/u/120429?v=4" width="100px;" alt="Stanislav Antic"/><br /><sub><b>Stanislav Antic</b></sub>](https://github.com/XooR)<br />[💻](https://github.com/hipages/php-fpm_exporter/commits?author=XooR "Code") | [<img src="https://avatars1.githubusercontent.com/u/1568165?v=4" width="100px;" alt="herb"/><br /><sub><b>herb</b></sub>](http://herb123456.blogspot.com/)<br />[💻](https://github.com/hipages/php-fpm_exporter/commits?author=herb123456 "Code") | [<img src="https://avatars1.githubusercontent.com/u/182203?v=4" width="100px;" alt="Smoked Cheese"/><br /><sub><b>Smoked Cheese</b></sub>](https://github.com/Nyoroon)<br />[🐛](https://github.com/hipages/php-fpm_exporter/issues?q=author%3ANyoroon "Bug reports") [💻](https://github.com/hipages/php-fpm_exporter/commits?author=Nyoroon "Code") |
+| :---: | :---: | :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
