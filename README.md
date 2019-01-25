@@ -1,4 +1,5 @@
 # php-fpm_exporter
+[![All Contributors](https://img.shields.io/badge/all_contributors-0-orange.svg?style=flat-square)](#contributors)
 
 [![CircleCI](https://circleci.com/gh/hipages/php-fpm_exporter.svg?style=shield)](https://circleci.com/gh/hipages/php-fpm_exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hipages/php-fpm_exporter)](https://goreportcard.com/report/github.com/hipages/php-fpm_exporter)
@@ -174,3 +175,13 @@ Before starting any work, please either comment on an existing issue, or file a 
 * [bakins/php-fpm-exporter](https://github.com/bakins/php-fpm-exporter)
 * [peakgames/php-fpm-prometheus](https://github.com/peakgames/php-fpm-prometheus)
 * [craigmj/phpfpm_exporter](https://github.com/craigmj/phpfpm_exporter)
+
+## Contributors
+
+Thanks goes to these wonderful people ([emoji key](https://github.com/all-contributors/all-contributors#emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
