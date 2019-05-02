@@ -23,6 +23,7 @@ A webserver such as NGINX or Apache is **NOT** needed!
 * Connects directly to PHP-FPM via TCP or Socket
 * Maps environment variables to CLI options
 * Fix for PHP-FPM metrics oddities
+* Optional PHP Opcache statistics
 * [Grafana Dashboard](https://grafana.com/dashboards/4912) for Kubernetes
 
 ## Usage
@@ -42,6 +43,7 @@ The `server` command runs the server required for prometheus to retrieve the sta
 | `--web.telemetry-path` | Path under which to expose metrics.                   | `PHP_FPM_WEB_TELEMETRY_PATH` | `/metrics`      |
 | `--phpfpm.scrape-uri`  | FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status | `PHP_FPM_SCRAPE_URI` | `tcp://127.0.0.1:9000/status` |
 | `--phpfpm.fix-process-count`  | Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers. | `PHP_FPM_FIX_PROCESS_COUNT`| `false` |
+| `--phpfpm.opcache-script-path` | Path to the opcache stats PHP script | `PHP_FPM_OPCACHE_SCRIPT_PATH` | |
 | `--log.level`          | Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal] (default "error") | `PHP_FPM_LOG_LEVEL` | info |
 
 ### Why `--phpfpm.fix-process-count`?
@@ -61,6 +63,12 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 * https://bugs.php.net/bug.php?id=76003
 * https://stackoverflow.com/questions/48961556/can-active-processes-be-larger-than-max-children-for-php-fpm
 
+### PHP Opcache statistics
+
+`php-fpm_exporter` supports collecting PHP opcache statistics through a small helper PHP script. Copy the `opcache_stats.php` to a location on your server and enable the metrics by defining `--phpfpm.opcache-script-path /path/to/opcache_stats.php`.
+
+`php-fpm_exporter` will then include metrics about opcache memory usage and cache efficiency.
+
 ### CLI Examples
 
 * Retrieve information from PHP-FPM running on `127.0.0.1:9000` with status endpoint being `/status`
@@ -76,6 +84,11 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 * Run as server with 2 pools:
   ```
   php-fpm_exporter server --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status
+  ```
+
+* Run as server, connect to PHP-FPM through a unix socket and enable PHP opcache statistics:
+  ```
+  php-fpm_exporter server --phpfpm.scrape-uri 'unix:///var/run/php-fpm.sock;/status' --phpfpm.opcache-script-path /tmp/opcache_stats.php
   ```
 
 * Run as server and enable process count fix via environment variable:
@@ -125,6 +138,38 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 # TYPE phpfpm_max_children_reached counter
 # HELP phpfpm_max_listen_queue The maximum number of requests in the queue of pending connections since FPM has started.
 # TYPE phpfpm_max_listen_queue counter
+# HELP phpfpm_opcache_cache_full Is PHP Opcache cache full?
+# TYPE phpfpm_opcache_cache_full gauge
+# HELP phpfpm_opcache_cache_hit_rate_percent PHP Opcache rate of cache hits
+# TYPE phpfpm_opcache_cache_hit_rate_percent gauge
+# HELP phpfpm_opcache_cache_hits_total PHP Opcache number of cache hits
+# TYPE phpfpm_opcache_cache_hits_total counter
+# HELP phpfpm_opcache_cache_misses_total PHP Opcache number of cache misses
+# TYPE phpfpm_opcache_cache_misses_total counter
+# HELP phpfpm_opcache_cached_keys_max_total PHP Opcache maximum number of cached keys
+# TYPE phpfpm_opcache_cached_keys_max_total counter
+# HELP phpfpm_opcache_cached_keys_total PHP Opcache total number of cached keys
+# TYPE phpfpm_opcache_cached_keys_total gauge
+# HELP phpfpm_opcache_cached_scripts_total PHP Opcache total number of cached scripts
+# TYPE phpfpm_opcache_cached_scripts_total gauge
+# HELP phpfpm_opcache_enabled Is PHP Opcache enabled?
+# TYPE phpfpm_opcache_enabled gauge
+# HELP phpfpm_opcache_interned_string_buffer_bytes PHP Opcache interned string buffer size
+# TYPE phpfpm_opcache_interned_string_buffer_bytes gauge
+# HELP phpfpm_opcache_interned_string_memory_free_bytes PHP Opcache interned string memory free
+# TYPE phpfpm_opcache_interned_string_memory_free_bytes gauge
+# HELP phpfpm_opcache_interned_string_memory_used_bytes PHP Opcache interned string memory used
+# TYPE phpfpm_opcache_interned_string_memory_used_bytes gauge
+# HELP phpfpm_opcache_interned_string_total PHP Opcache total number of interned strings
+# TYPE phpfpm_opcache_interned_string_total gauge
+# HELP phpfpm_opcache_memory_free_bytes PHP Opcache cache memory free in bytes
+# TYPE phpfpm_opcache_memory_free_bytes gauge
+# HELP phpfpm_opcache_memory_used_bytes PHP Opcache cache memory used in bytes
+# TYPE phpfpm_opcache_memory_used_bytes gauge
+# HELP phpfpm_opcache_memory_wasted_bytes PHP Opcache cache memory wasted in bytes
+# TYPE phpfpm_opcache_memory_wasted_bytes gauge
+# HELP phpfpm_opcache_memory_wasted_percent Percent of PHP Opcache cache memory wasted
+# TYPE phpfpm_opcache_memory_wasted_percent gauge
 # HELP phpfpm_process_last_request_cpu The %cpu the last request consumed.
 # TYPE phpfpm_process_last_request_cpu gauge
 # HELP phpfpm_process_last_request_memory The max amount of memory the last request consumed.

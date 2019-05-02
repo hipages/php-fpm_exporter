@@ -28,10 +28,11 @@ import (
 
 // Configuration variables
 var (
-	listeningAddress string
-	metricsEndpoint  string
-	scrapeURIs       []string
-	fixProcessCount  bool
+	listeningAddress  string
+	metricsEndpoint   string
+	scrapeURIs        []string
+	opcacheScriptPath string
+	fixProcessCount   bool
 )
 
 // serverCmd represents the server command
@@ -54,6 +55,11 @@ to quickly create a Cobra application.`,
 		}
 
 		exporter := phpfpm.NewExporter(pm)
+
+		if opcacheScriptPath != "" {
+			exporter.EnableOpcacheStats = true
+			exporter.Opcache.OpcacheScriptPath = opcacheScriptPath
+		}
 
 		if fixProcessCount {
 			log.Info("Idle/Active/Total Processes will be calculated by php-fpm_exporter.")
@@ -119,6 +125,7 @@ func init() {
 	serverCmd.Flags().StringVar(&listeningAddress, "web.listen-address", ":9253", "Address on which to expose metrics and web interface.")
 	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
+	serverCmd.Flags().StringVar(&opcacheScriptPath, "phpfpm.opcache-script-path", "", "Path to the opcache stats PHP script")
 	serverCmd.Flags().BoolVar(&fixProcessCount, "phpfpm.fix-process-count", false, "Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.")
 
 	//viper.BindEnv("web.listen-address", "PHP_FPM_WEB_LISTEN_ADDRESS")
@@ -127,10 +134,11 @@ func init() {
 	// Workaround since vipers BindEnv is currently not working as expected (see https://github.com/spf13/viper/issues/461)
 
 	envs := map[string]string{
-		"PHP_FPM_WEB_LISTEN_ADDRESS": "web.listen-address",
-		"PHP_FPM_WEB_TELEMETRY_PATH": "web.telemetry-path",
-		"PHP_FPM_SCRAPE_URI":         "phpfpm.scrape-uri",
-		"PHP_FPM_FIX_PROCESS_COUNT":  "phpfpm.fix-process-count",
+		"PHP_FPM_WEB_LISTEN_ADDRESS":  "web.listen-address",
+		"PHP_FPM_WEB_TELEMETRY_PATH":  "web.telemetry-path",
+		"PHP_FPM_SCRAPE_URI":          "phpfpm.scrape-uri",
+		"PHP_FPM_OPCACHE_SCRIPT_PATH": "phpfpm.opcache-script-path",
+		"PHP_FPM_FIX_PROCESS_COUNT":   "phpfpm.fix-process-count",
 	}
 
 	mapEnvVars(envs, serverCmd)

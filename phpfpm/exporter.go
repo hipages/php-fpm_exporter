@@ -29,8 +29,10 @@ const (
 type Exporter struct {
 	mutex       sync.Mutex
 	PoolManager PoolManager
+	Opcache     Opcache
 
-	CountProcessState bool
+	CountProcessState  bool
+	EnableOpcacheStats bool
 
 	up                       *prometheus.Desc
 	scrapeFailues            *prometheus.Desc
@@ -50,12 +52,33 @@ type Exporter struct {
 	processLastRequestCPU    *prometheus.Desc
 	processRequestDuration   *prometheus.Desc
 	processState             *prometheus.Desc
+
+	opcacheEnabled   *prometheus.Desc
+	opcacheCacheFull *prometheus.Desc
+
+	opcacheMemoryUsed      *prometheus.Desc
+	opcacheMemoryFree      *prometheus.Desc
+	opcacheMemoryWasted    *prometheus.Desc
+	opcacheMemoryWastedPct *prometheus.Desc
+
+	opcacheInternedStringBufferSize *prometheus.Desc
+	opcacheInternedStringMemoryUsed *prometheus.Desc
+	opcacheInternedStringMemoryFree *prometheus.Desc
+	opcacheInternedStringCount      *prometheus.Desc
+
+	opcacheCachedScripts *prometheus.Desc
+	opcacheCachedKeys    *prometheus.Desc
+	opcacheCachedKeysMax *prometheus.Desc
+	opcacheCacheHits     *prometheus.Desc
+	opcacheCacheMisses   *prometheus.Desc
+	opcacheCacheHitRate  *prometheus.Desc
 }
 
 // NewExporter creates a new Exporter for a PoolManager and configures the necessary metrics.
 func NewExporter(pm PoolManager) *Exporter {
 	return &Exporter{
 		PoolManager: pm,
+		Opcache:     Opcache{},
 
 		CountProcessState: false,
 
@@ -166,6 +189,102 @@ func NewExporter(pm PoolManager) *Exporter {
 			"The state of the process (Idle, Running, ...).",
 			[]string{"pool", "pid_hash", "state"},
 			nil),
+
+		opcacheEnabled: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "enabled"),
+			"Is PHP Opcache enabled?",
+			nil,
+			nil),
+
+		opcacheCacheFull: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cache_full"),
+			"Is PHP Opcache cache full?",
+			nil,
+			nil),
+
+		opcacheMemoryUsed: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "memory_used_bytes"),
+			"PHP Opcache cache memory used in bytes",
+			nil,
+			nil),
+
+		opcacheMemoryFree: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "memory_free_bytes"),
+			"PHP Opcache cache memory free in bytes",
+			nil,
+			nil),
+
+		opcacheMemoryWasted: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "memory_wasted_bytes"),
+			"PHP Opcache cache memory wasted in bytes",
+			nil,
+			nil),
+
+		opcacheMemoryWastedPct: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "memory_wasted_percent"),
+			"Percent of PHP Opcache cache memory wasted",
+			nil,
+			nil),
+
+		opcacheInternedStringBufferSize: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "interned_string_buffer_bytes"),
+			"PHP Opcache interned string buffer size",
+			nil,
+			nil),
+
+		opcacheInternedStringMemoryUsed: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "interned_string_memory_used_bytes"),
+			"PHP Opcache interned string memory used",
+			nil,
+			nil),
+
+		opcacheInternedStringMemoryFree: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "interned_string_memory_free_bytes"),
+			"PHP Opcache interned string memory free",
+			nil,
+			nil),
+
+		opcacheInternedStringCount: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "interned_string_total"),
+			"PHP Opcache total number of interned strings",
+			nil,
+			nil),
+
+		opcacheCachedScripts: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cached_scripts_total"),
+			"PHP Opcache total number of cached scripts",
+			nil,
+			nil),
+
+		opcacheCachedKeys: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cached_keys_total"),
+			"PHP Opcache total number of cached keys",
+			nil,
+			nil),
+
+		opcacheCachedKeysMax: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cached_keys_max_total"),
+			"PHP Opcache maximum number of cached keys",
+			nil,
+			nil),
+
+		opcacheCacheHits: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cache_hits_total"),
+			"PHP Opcache number of cache hits",
+			nil,
+			nil),
+
+		opcacheCacheMisses: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cache_misses_total"),
+			"PHP Opcache number of cache misses",
+			nil,
+			nil),
+
+		opcacheCacheHitRate: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cache_hit_rate_percent"),
+			"PHP Opcache rate of cache hits",
+			nil,
+			nil),
 	}
 }
 
@@ -175,6 +294,18 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	defer e.mutex.Unlock()
 
 	e.PoolManager.Update()
+
+	// Use the first available pool to fetch the opcache statistics
+	// Opcache stats are global to the FPM process so no need to fetch these for every pool
+	if e.EnableOpcacheStats && len(e.PoolManager.Pools) >= 1 {
+		p := e.PoolManager.Pools[0]
+		oc := &e.Opcache
+		log.Debugf("Using pool %v for opcache statistics", p.Name)
+		err := oc.Update(p)
+		if err != nil {
+			log.Errorf("Error updating opcache statistics: %v", err)
+		}
+	}
 
 	for _, pool := range e.PoolManager.Pools {
 		ch <- prometheus.MustNewConstMetric(e.scrapeFailues, prometheus.CounterValue, float64(pool.ScrapeFailures), pool.Name)
@@ -218,6 +349,30 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration), pool.Name, pidHash)
 		}
 	}
+
+	if e.EnableOpcacheStats {
+		ch <- prometheus.MustNewConstMetric(e.opcacheEnabled, prometheus.GaugeValue, (map[bool]float64{true: 1, false: 0})[e.Opcache.OpcacheEnabled])
+		// If Opcache is reported as enabled by the opcache stats PHP script, include the following metrics
+		if e.Opcache.OpcacheEnabled {
+			ch <- prometheus.MustNewConstMetric(e.opcacheCacheFull, prometheus.GaugeValue, (map[bool]float64{true: 1, false: 0})[e.Opcache.CacheFull])
+			ch <- prometheus.MustNewConstMetric(e.opcacheMemoryUsed, prometheus.GaugeValue, float64(e.Opcache.MemoryUsage.UsedMemory))
+			ch <- prometheus.MustNewConstMetric(e.opcacheMemoryFree, prometheus.GaugeValue, float64(e.Opcache.MemoryUsage.FreeMemory))
+			ch <- prometheus.MustNewConstMetric(e.opcacheMemoryWasted, prometheus.GaugeValue, float64(e.Opcache.MemoryUsage.WastedMemory))
+			ch <- prometheus.MustNewConstMetric(e.opcacheMemoryWastedPct, prometheus.GaugeValue, float64(e.Opcache.MemoryUsage.CurrentWastedPercentage))
+
+			ch <- prometheus.MustNewConstMetric(e.opcacheInternedStringBufferSize, prometheus.GaugeValue, float64(e.Opcache.InternedStringsUsage.BufferSize))
+			ch <- prometheus.MustNewConstMetric(e.opcacheInternedStringMemoryUsed, prometheus.GaugeValue, float64(e.Opcache.InternedStringsUsage.UsedMemory))
+			ch <- prometheus.MustNewConstMetric(e.opcacheInternedStringMemoryFree, prometheus.GaugeValue, float64(e.Opcache.InternedStringsUsage.FreeMemory))
+			ch <- prometheus.MustNewConstMetric(e.opcacheInternedStringCount, prometheus.GaugeValue, float64(e.Opcache.InternedStringsUsage.NumberOfStrings))
+
+			ch <- prometheus.MustNewConstMetric(e.opcacheCachedScripts, prometheus.GaugeValue, float64(e.Opcache.OpcacheStatistics.NumCachedScripts))
+			ch <- prometheus.MustNewConstMetric(e.opcacheCachedKeys, prometheus.GaugeValue, float64(e.Opcache.OpcacheStatistics.NumCachedKeys))
+			ch <- prometheus.MustNewConstMetric(e.opcacheCachedKeysMax, prometheus.CounterValue, float64(e.Opcache.OpcacheStatistics.MaxCachedKeys))
+			ch <- prometheus.MustNewConstMetric(e.opcacheCacheHits, prometheus.CounterValue, float64(e.Opcache.OpcacheStatistics.Hits))
+			ch <- prometheus.MustNewConstMetric(e.opcacheCacheMisses, prometheus.CounterValue, float64(e.Opcache.OpcacheStatistics.Misses))
+			ch <- prometheus.MustNewConstMetric(e.opcacheCacheHitRate, prometheus.GaugeValue, float64(e.Opcache.OpcacheStatistics.OpcacheHitRate))
+		}
+	}
 }
 
 // Describe exposes the metric description to Prometheus
@@ -239,6 +394,22 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.processLastRequestMemory
 	ch <- e.processLastRequestCPU
 	ch <- e.processRequestDuration
+	ch <- e.opcacheEnabled
+	ch <- e.opcacheCacheFull
+	ch <- e.opcacheMemoryUsed
+	ch <- e.opcacheMemoryFree
+	ch <- e.opcacheMemoryWasted
+	ch <- e.opcacheMemoryWastedPct
+	ch <- e.opcacheInternedStringBufferSize
+	ch <- e.opcacheInternedStringMemoryUsed
+	ch <- e.opcacheInternedStringMemoryFree
+	ch <- e.opcacheInternedStringCount
+	ch <- e.opcacheCachedScripts
+	ch <- e.opcacheCachedKeys
+	ch <- e.opcacheCachedKeysMax
+	ch <- e.opcacheCacheHits
+	ch <- e.opcacheCacheMisses
+	ch <- e.opcacheCacheHitRate
 }
 
 // calculateProcessHash generates a unique identifier for a process to ensure uniqueness across multiple systems/containers
