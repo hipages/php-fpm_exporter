@@ -192,6 +192,52 @@ func (p *Pool) Update() (err error) {
 	return nil
 }
 
+// Execute will connect to PHP-FPM and execute the given script in the pool.
+func (p *Pool) Execute(scriptPath string) (response []byte, err error) {
+	p.ScrapeError = nil
+
+	scheme, address, _, err := parseURL(p.Address)
+	if err != nil {
+		return nil, p.error(err)
+	}
+
+	fcgi, err := fcgiclient.DialTimeout(scheme, address, time.Duration(3)*time.Second)
+	if err != nil {
+		return nil, p.error(err)
+	}
+
+	defer fcgi.Close()
+
+	env := map[string]string{
+		"SCRIPT_FILENAME": scriptPath,
+		"SCRIPT_NAME":     scriptPath,
+		"SERVER_SOFTWARE": "go / php-fpm_exporter",
+		"REMOTE_ADDR":     "127.0.0.1",
+		"QUERY_STRING":    "json&full",
+	}
+
+	resp, err := fcgi.Get(env)
+	if err != nil {
+		return nil, p.error(err)
+	}
+
+	defer resp.Body.Close()
+
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, p.error(err)
+	}
+
+	log.Debugf("Pool[%v]: script %v returned %v", p.Address, scriptPath, string(content))
+
+	/* if err = json.Unmarshal(content, &p); err != nil {
+		log.Errorf("Pool[%v]: %v", p.Address, string(content))
+		return p.error(err)
+	} */
+
+	return content, nil
+}
+
 func (p *Pool) error(err error) error {
 	p.ScrapeError = err
 	p.ScrapeFailures++
