@@ -10,6 +10,7 @@
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Percentage of issues still open")
 [![Open Source Helpers](https://www.codetriage.com/hipages/php-fpm_exporter/badges/users.svg)](https://www.codetriage.com/hipages/php-fpm_exporter)
 [![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fhipages%2Fphp-fpm_exporter.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fhipages%2Fphp-fpm_exporter?ref=badge_shield)
 
 A [prometheus](https://prometheus.io/) exporter for PHP-FPM.
 The exporter connects directly to PHP-FPM and exports the metrics via HTTP.
@@ -187,3 +188,7 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/all-contri
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fhipages%2Fphp-fpm_exporter.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fhipages%2Fphp-fpm_exporter?ref=badge_large)
