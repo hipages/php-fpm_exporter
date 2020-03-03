@@ -3,7 +3,7 @@ on: [push]
 jobs:
 
   test:
-    name: Test
+    name: Lint
     runs-on: ubuntu-latest
     steps:
 
@@ -16,5 +16,5 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Test
-      run: make deps lint test-coverage
+    - name: golangci-lint
+      uses: actions-contrib/golangci-lint@v1
