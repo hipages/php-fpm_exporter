@@ -72,13 +72,17 @@ to quickly create a Cobra application.`,
 
 		http.Handle(metricsEndpoint, promhttp.Handler())
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(`<html>
+			_, err := w.Write([]byte(`<html>
 			 <head><title>php-fpm_exporter</title></head>
 			 <body>
 			 <h1>php-fpm_exporter</h1>
 			 <p><a href='` + metricsEndpoint + `'>Metrics</a></p>
 			 </body>
 			 </html>`))
+
+			if err != nil {
+				log.Error()
+			}
 		})
 
 		// Run our server in a goroutine so that it doesn't block.
