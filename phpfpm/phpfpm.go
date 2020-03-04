@@ -131,7 +131,9 @@ func (pm *PoolManager) Update() (err error) {
 		wg.Add(1)
 		go func(p *Pool) {
 			defer wg.Done()
-			p.Update()
+			if err := p.Update(); err != nil {
+				log.Error(err)
+			}
 		}(&pm.Pools[idx])
 	}
 

@@ -174,7 +174,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
-	e.PoolManager.Update()
+	if err := e.PoolManager.Update(); err != nil {
+		log.Error(err)
+	}
 
 	for _, pool := range e.PoolManager.Pools {
 		ch <- prometheus.MustNewConstMetric(e.scrapeFailues, prometheus.CounterValue, float64(pool.ScrapeFailures), pool.Name, pool.Address)
