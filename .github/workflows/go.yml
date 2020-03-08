@@ -46,14 +46,28 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Building Docker Image
-      run:
-        docker build --no-cache -t magic:latest .
+    - name: Unshallow
+      run: git fetch --prune --unshallow
+
+    - name: Set up Go
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.14
+      id: go
+
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v1
+      with:
+        version: latest
+        args: release --rm-dist --skip-validate --skip-publish
+        key: ${{ secrets.YOUR_PRIVATE_KEY }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Scan image
       uses: anchore/scan-action@master
       with:
-        image-reference: "magic:latest"
+        image-reference: "hipages/php-fpm_exporter:latest"
 
   tag:
     name: Tag
