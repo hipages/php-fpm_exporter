@@ -39,6 +39,22 @@ jobs:
     - name: Test
       run: go test ./...
 
+  image-scan:
+    name: Image Scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Building Docker Image
+      run:
+        docker build --no-cache -t magic:latest .
+
+    - name: Scan image
+      uses: anchore/scan-action@master
+      with:
+        image-reference: "magic:latest"
+
   tag:
     name: Tag
     runs-on: ubuntu-latest
@@ -54,7 +70,7 @@ jobs:
 
     - name: Unshallow
       run: git fetch --prune --unshallow
-              
+
     - name: Install semantic-release
       run: yarn global add --no-progress --non-interactive "semantic-release" "@semantic-release/exec"
 
@@ -70,16 +86,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
+
       - name: Unshallow
         run: git fetch --prune --unshallow
-        
+
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
           go-version: 1.14
         id: go
-        
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v1
         with:
