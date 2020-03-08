@@ -20,5 +20,5 @@ dockers:
       - "--build-arg=BUILD_DATE={{.Date}}"
       - "--build-arg=VCS_REF={{.FullCommit}}"
 
-archive:
-  format: binary
+archives:
+  - format: binary
