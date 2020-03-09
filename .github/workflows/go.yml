@@ -68,6 +68,9 @@ jobs:
       uses: anchore/scan-action@master
       with:
         image-reference: "hipages/php-fpm_exporter:latest"
+        dockerfile-path: "./Dockerfile"
+        fail-build: true
+        include-app-packages: true
 
   tag:
     name: Tag
