@@ -1,5 +1,5 @@
 name: Go
-on: [push, pull_request]
+on: [push]
 jobs:
 
   lint:
@@ -39,6 +39,39 @@ jobs:
     - name: Test
       run: go test ./...
 
+  image-scan:
+    name: Image Scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Unshallow
+      run: git fetch --prune --unshallow
+
+    - name: Set up Go
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.14
+      id: go
+
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v1
+      with:
+        version: latest
+        args: release --rm-dist --skip-validate --skip-publish
+        key: ${{ secrets.YOUR_PRIVATE_KEY }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Scan image
+      uses: anchore/scan-action@master
+      with:
+        image-reference: "hipages/php-fpm_exporter:latest"
+        dockerfile-path: "./Dockerfile"
+        fail-build: true
+        include-app-packages: true
+
   tag:
     name: Tag
     runs-on: ubuntu-latest
@@ -54,7 +87,7 @@ jobs:
 
     - name: Unshallow
       run: git fetch --prune --unshallow
-              
+
     - name: Install semantic-release
       run: yarn global add --no-progress --non-interactive "semantic-release" "@semantic-release/exec"
 
@@ -70,16 +103,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
+
       - name: Unshallow
         run: git fetch --prune --unshallow
-        
+
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
           go-version: 1.14
         id: go
-        
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v1
         with:
