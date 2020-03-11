@@ -49,7 +49,17 @@
         "bug",
         "code"
       ]
+    },
+    {
+      "login": "sas1024",
+      "name": "Alexander",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/7388179?v=4",
+      "profile": "https://www.old-games.ru",
+      "contributions": [
+        "code"
+      ]
     }
   ],
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "skipCi": true
 }
