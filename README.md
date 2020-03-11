@@ -181,9 +181,20 @@ Before starting any work, please either comment on an existing issue, or file a 
 Thanks goes to these wonderful people ([emoji key](https://github.com/all-contributors/all-contributors#emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore -->
-| [<img src="https://avatars3.githubusercontent.com/u/362174?v=4" width="100px;" alt="Enrico Stahn"/><br /><sub><b>Enrico Stahn</b></sub>](http://enricostahn.com)<br />[💬](#question-estahn "Answering Questions") [💻](https://github.com/hipages/php-fpm_exporter/commits?author=estahn "Code") [📖](https://github.com/hipages/php-fpm_exporter/commits?author=estahn "Documentation") [🚧](#maintenance-estahn "Maintenance") [⚠️](https://github.com/hipages/php-fpm_exporter/commits?author=estahn "Tests") | [<img src="https://avatars2.githubusercontent.com/u/120429?v=4" width="100px;" alt="Stanislav Antic"/><br /><sub><b>Stanislav Antic</b></sub>](https://github.com/XooR)<br />[💻](https://github.com/hipages/php-fpm_exporter/commits?author=XooR "Code") | [<img src="https://avatars1.githubusercontent.com/u/1568165?v=4" width="100px;" alt="herb"/><br /><sub><b>herb</b></sub>](http://herb123456.blogspot.com/)<br />[💻](https://github.com/hipages/php-fpm_exporter/commits?author=herb123456 "Code") | [<img src="https://avatars1.githubusercontent.com/u/182203?v=4" width="100px;" alt="Smoked Cheese"/><br /><sub><b>Smoked Cheese</b></sub>](https://github.com/Nyoroon)<br />[🐛](https://github.com/hipages/php-fpm_exporter/issues?q=author%3ANyoroon "Bug reports") [💻](https://github.com/hipages/php-fpm_exporter/commits?author=Nyoroon "Code") |
-| :---: | :---: | :---: | :---: |
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://enricostahn.com"><img src="https://avatars3.githubusercontent.com/u/362174?v=4" width="100px;" alt=""/><br /><sub><b>Enrico Stahn</b></sub></a><br /><a href="#question-estahn" title="Answering Questions">💬</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=estahn" title="Code">💻</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=estahn" title="Documentation">📖</a> <a href="#maintenance-estahn" title="Maintenance">🚧</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=estahn" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/XooR"><img src="https://avatars2.githubusercontent.com/u/120429?v=4" width="100px;" alt=""/><br /><sub><b>Stanislav Antic</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=XooR" title="Code">💻</a></td>
+    <td align="center"><a href="http://herb123456.blogspot.com/"><img src="https://avatars1.githubusercontent.com/u/1568165?v=4" width="100px;" alt=""/><br /><sub><b>herb</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=herb123456" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Nyoroon"><img src="https://avatars1.githubusercontent.com/u/182203?v=4" width="100px;" alt=""/><br /><sub><b>Smoked Cheese</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/issues?q=author%3ANyoroon" title="Bug reports">🐛</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=Nyoroon" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.old-games.ru"><img src="https://avatars3.githubusercontent.com/u/7388179?v=4" width="100px;" alt=""/><br /><sub><b>Alexander</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=sas1024" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
