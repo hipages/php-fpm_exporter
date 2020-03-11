@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+
+  phpfpm1:
+    image: hipages/php
+    ports:
+      - "9031:9000"
+    environment:
+      PHP_FPM_PM_STATUS_PATH: "/status"
+
+  phpfpm2:
+    image: hipages/php
+    ports:
+      - "9032:9000"
+    environment:
+      PHP_FPM_PM_STATUS_PATH: "/status"
+
+  phpfpm3:
+    image: hipages/php
+    ports:
+      - "9033:9000"
+    environment:
+      PHP_FPM_PM_STATUS_PATH: "/status"
+
+  exporter:
+    image: hipages/php-fpm_exporter:latest
+    ports:
+      - "9253:9253"
+    environment:
+      PHP_FPM_SCRAPE_URI: "tcp://phpfpm1:9000/status,tcp://phpfpm2:9000/status,tcp://phpfpm3:9000/status"
+      PHP_FPM_LOG_LEVEL: "debug"

@@ -1,10 +1,9 @@
 # php-fpm_exporter
 
-[![CircleCI](https://circleci.com/gh/hipages/php-fpm_exporter.svg?style=shield)](https://circleci.com/gh/hipages/php-fpm_exporter)
+![Test](https://github.com/hipages/php-fpm_exporter/workflows/Test/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hipages/php-fpm_exporter)](https://goreportcard.com/report/github.com/hipages/php-fpm_exporter)
 [![GoDoc](https://godoc.org/github.com/hipages/php-fpm_exporter?status.svg)](https://godoc.org/github.com/hipages/php-fpm_exporter)
-[![Maintainability](https://api.codeclimate.com/v1/badges/52f9e1f0388e8aa38bfe/maintainability)](https://codeclimate.com/github/hipages/php-fpm_exporter/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/52f9e1f0388e8aa38bfe/test_coverage)](https://codeclimate.com/github/hipages/php-fpm_exporter/test_coverage)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=hipages_php-fpm_exporter&metric=alert_status)](https://sonarcloud.io/dashboard?id=hipages_php-fpm_exporter)
 [![Docker Pulls](https://img.shields.io/docker/pulls/hipages/php-fpm_exporter.svg)](https://hub.docker.com/r/hipages/php-fpm_exporter/)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Percentage of issues still open")
@@ -15,6 +14,28 @@ A [prometheus](https://prometheus.io/) exporter for PHP-FPM.
 The exporter connects directly to PHP-FPM and exports the metrics via HTTP.
 
 A webserver such as NGINX or Apache is **NOT** needed!
+
+## Table of Contents
+
+<!-- toc -->
+
+- [Features](#features)
+- [Usage](#usage)
+  * [Options and defaults](#options-and-defaults)
+  * [Why `--phpfpm.fix-process-count`?](#why---phpfpmfix-process-count)
+  * [CLI Examples](#cli-examples)
+  * [Docker Examples](#docker-examples)
+  * [Kubernetes Example](#kubernetes-example)
+- [Metrics collected](#metrics-collected)
+- [Grafana Dasbhoard for Kubernetes](#grafana-dasbhoard-for-kubernetes)
+- [FAQ](#faq)
+- [Development](#development)
+  * [E2E Tests](#e2e-tests)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
+- [Alternatives](#alternatives)
+
+<!-- tocstop -->
 
 ## Features
 
@@ -106,6 +127,8 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 
 ### Kubernetes Example
 
+TBD
+
 ## Metrics collected
 
 ```
@@ -153,14 +176,6 @@ The Grafana dashboard can be found [here](https://grafana.com/dashboards/4912).
 
 <img src="https://grafana.com/api/dashboards/4912/images/3079/image" width="600">
 
-## Contributing
-
-Contributions are greatly appreciated.
-The maintainers actively manage the issues list, and try to highlight issues suitable for newcomers.
-The project follows the typical GitHub pull request model.
-See " [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/) " for more details.
-Before starting any work, please either comment on an existing issue, or file a new one.
-
 ## FAQ
 
 * **How to update "Metrics collected"?**
@@ -170,11 +185,30 @@ Before starting any work, please either comment on an existing issue, or file a 
   curl http://127.0.0.1:12345/metrics | grep phpfpm | grep "#"
   ```
 
-## Alternatives
+## Development
 
-* [bakins/php-fpm-exporter](https://github.com/bakins/php-fpm-exporter)
-* [peakgames/php-fpm-prometheus](https://github.com/peakgames/php-fpm-prometheus)
-* [craigmj/phpfpm_exporter](https://github.com/craigmj/phpfpm_exporter)
+### E2E Tests
+
+The E2E tests are based on docker-compose and bats-core. Install the required components, e.g. via brew on MacOS:
+
+```bash
+brew tap kaos/shell
+brew install docker-compose bats-core kaos/shell/bats-assert kaos/shell/bats-support
+```
+
+After the components are installed run the E2E tests:
+
+```bash
+make tests-e2e
+```
+
+## Contributing
+
+Contributions are greatly appreciated.
+The maintainers actively manage the issues list, and try to highlight issues suitable for newcomers.
+The project follows the typical GitHub pull request model.
+See " [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/) " for more details.
+Before starting any work, please either comment on an existing issue, or file a new one.
 
 ## Contributors
 
@@ -198,3 +232,9 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/all-contri
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## Alternatives
+
+* [bakins/php-fpm-exporter](https://github.com/bakins/php-fpm-exporter)
+* [peakgames/php-fpm-prometheus](https://github.com/peakgames/php-fpm-prometheus)
+* [craigmj/phpfpm_exporter](https://github.com/craigmj/phpfpm_exporter)

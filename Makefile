@@ -19,9 +19,11 @@ test-coverage-html: ## Create a code coverage report in HTML
 	go test -coverprofile .cover/cover.out ./...
 	go tool cover -html .cover/cover.out
 
+test-e2e:
+	bats tests/e2e.bats
+
 lint: ## Run linters
 	golangci-lint run
 
 fmt: ## Fix formatting issues
 	goimports -w .
-
