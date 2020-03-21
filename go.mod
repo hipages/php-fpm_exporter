@@ -10,7 +10,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
-	github.com/prometheus/client_golang v1.5.0
+	github.com/prometheus/client_golang v1.5.1
 	github.com/prometheus/procfs v0.0.10 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/speps/go-hashids v2.0.0+incompatible
