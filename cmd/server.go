@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/hipages/php-fpm_exporter/phpfpm"
@@ -93,9 +94,9 @@ to quickly create a Cobra application.`,
 		}()
 
 		c := make(chan os.Signal, 1)
-		// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
-		// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
-		signal.Notify(c, os.Interrupt)
+		// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C) or SIGTERM
+		// SIGKILL, SIGQUIT will not be caught.
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 		// Block until we receive our signal.
 		<-c
