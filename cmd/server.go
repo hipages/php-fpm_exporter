@@ -29,10 +29,11 @@ import (
 
 // Configuration variables
 var (
-	listeningAddress string
-	metricsEndpoint  string
-	scrapeURIs       []string
-	fixProcessCount  bool
+	listeningAddress       string
+	metricsEndpoint        string
+	scrapeURIs             []string
+	fixProcessCount        bool
+	disableExporterMetrics bool
 )
 
 // serverCmd represents the server command
@@ -61,7 +62,15 @@ to quickly create a Cobra application.`,
 			exporter.CountProcessState = true
 		}
 
-		prometheus.MustRegister(exporter)
+		exporterMetricsRegistry := prometheus.NewRegistry()
+		exporterMetricsRegistry.MustRegister(exporter)
+
+		if !disableExporterMetrics {
+			exporterMetricsRegistry.MustRegister(
+				prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}),
+				prometheus.NewGoCollector(),
+			)
+		}
 
 		srv := &http.Server{
 			Addr: listeningAddress,
@@ -71,7 +80,13 @@ to quickly create a Cobra application.`,
 			IdleTimeout:  time.Second * 60,
 		}
 
-		http.Handle(metricsEndpoint, promhttp.Handler())
+		handler := promhttp.HandlerFor(exporterMetricsRegistry, promhttp.HandlerOpts{})
+
+		if !disableExporterMetrics {
+			handler = promhttp.InstrumentMetricHandler(exporterMetricsRegistry, handler)
+		}
+
+		http.Handle(metricsEndpoint, handler)
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			_, err := w.Write([]byte(`<html>
 			 <head><title>php-fpm_exporter</title></head>
@@ -123,6 +138,7 @@ func init() {
 
 	serverCmd.Flags().StringVar(&listeningAddress, "web.listen-address", ":9253", "Address on which to expose metrics and web interface.")
 	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+	serverCmd.Flags().BoolVar(&disableExporterMetrics, "web.disable-exporter-metrics", false, "Exclude metrics about the exporter itself (promhttp_*, process_*, go_*).")
 	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
 	serverCmd.Flags().BoolVar(&fixProcessCount, "phpfpm.fix-process-count", false, "Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.")
 
@@ -132,10 +148,11 @@ func init() {
 	// Workaround since vipers BindEnv is currently not working as expected (see https://github.com/spf13/viper/issues/461)
 
 	envs := map[string]string{
-		"PHP_FPM_WEB_LISTEN_ADDRESS": "web.listen-address",
-		"PHP_FPM_WEB_TELEMETRY_PATH": "web.telemetry-path",
-		"PHP_FPM_SCRAPE_URI":         "phpfpm.scrape-uri",
-		"PHP_FPM_FIX_PROCESS_COUNT":  "phpfpm.fix-process-count",
+		"PHP_FPM_WEB_LISTEN_ADDRESS":           "web.listen-address",
+		"PHP_FPM_WEB_TELEMETRY_PATH":           "web.telemetry-path",
+		"PHP_FPM_WEB_DISABLE_EXPORTER_METRICS": "web.disable-exporter-metrics",
+		"PHP_FPM_SCRAPE_URI":                   "phpfpm.scrape-uri",
+		"PHP_FPM_FIX_PROCESS_COUNT":            "phpfpm.fix-process-count",
 	}
 
 	mapEnvVars(envs, serverCmd)
