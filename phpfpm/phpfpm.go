@@ -66,7 +66,9 @@ type PoolManager struct {
 // Pool describes a single PHP-FPM pool that can be reached via a Socket or TCP address
 type Pool struct {
 	// The address of the pool, e.g. tcp://127.0.0.1:9000 or unix:///tmp/php-fpm.sock
-	Address             string        `json:"-"`
+	// Address             string        `json:"-"`
+	ScrapeHost          string        `json:"-"`
+	ScrapePath          string        `json:"-"`
 	ScrapeError         error         `json:"-"`
 	ScrapeFailures      int64         `json:"-"`
 	Name                string        `json:"pool"`
@@ -84,7 +86,8 @@ type Pool struct {
 	MaxChildrenReached  int64         `json:"max children reached"`
 	SlowRequests        int64         `json:"slow requests"`
 	Processes           []PoolProcess `json:"processes"`
-	Opcache             OPcacheStatus `json:"-"`
+	CacheScriptPath     string        `json:"-"`
+	CacheStatus         CacheStatus   `json:"-"`
 }
 
 type requestDuration int64
@@ -114,6 +117,11 @@ type PoolProcessStateCounter struct {
 	ReadingHeaders int64
 	Info           int64
 	Ending         int64
+}
+
+// CacheStatus aggregates information about all scraped caches
+type CacheStatus struct {
+	OPcacheStatus OPcacheStatus `json:"opcache"`
 }
 
 // OPcacheStatus contains information about OPcache
@@ -161,8 +169,12 @@ type OPcacheStatistics struct {
 }
 
 // Add will add a pool to the pool manager based on the given URI.
-func (pm *PoolManager) Add(uri string) Pool {
-	p := Pool{Address: uri}
+func (pm *PoolManager) Add(ScrapeHost, ScrapePath, cacheScriptPath string) Pool {
+	p := Pool{
+		ScrapeHost:      ScrapeHost,
+		ScrapePath:      ScrapePath,
+		CacheScriptPath: cacheScriptPath,
+	}
 	pm.Pools = append(pm.Pools, p)
 	return p
 }
@@ -196,7 +208,7 @@ func (pm *PoolManager) Update() (err error) {
 func (p *Pool) Update() (err error) {
 	p.ScrapeError = nil
 
-	scheme, address, path, err := parseURL(p.Address)
+	scheme, address, path, err := parseURL(p.ScrapeHost + p.ScrapePath)
 	if err != nil {
 		return p.error(err)
 	}
@@ -230,21 +242,21 @@ func (p *Pool) Update() (err error) {
 
 	content = JSONResponseFixer(content)
 
-	log.Debugf("Pool[%v]: %v", p.Address, string(content))
+	log.Debugf("Pool[%v]: %v%v", p.ScrapeHost, p.ScrapePath, string(content))
 
 	if err = json.Unmarshal(content, &p); err != nil {
-		log.Errorf("Pool[%v]: %v", p.Address, string(content))
+		log.Errorf("Pool[%v]: %v%v", p.ScrapeHost, p.ScrapePath, string(content))
 		return p.error(err)
 	}
 
-	client, err := fcgiclient.Dial("tcp", "phpfpm:9000")
+	client, err := fcgiclient.DialTimeout(scheme, address, time.Duration(3)*time.Second)
 	if err != nil {
 		panic(err)
 		// return nil, err
 	}
 
 	env = map[string]string{
-		"SCRIPT_FILENAME": "/opt/cache.php",
+		"SCRIPT_FILENAME": p.CacheScriptPath,
 	}
 
 	resp, err = client.Get(env)
@@ -261,8 +273,7 @@ func (p *Pool) Update() (err error) {
 		// return nil, err
 	}
 
-	// &p.Opcache := new(OPcacheStatus)
-	err = json.Unmarshal(content, &p.Opcache)
+	err = json.Unmarshal(content, &p.CacheStatus)
 	if err != nil {
 		return errors.New(string(content))
 	}

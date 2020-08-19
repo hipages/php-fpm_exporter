@@ -23,5 +23,8 @@ services:
     ports:
       - "9253:9253"
     environment:
-      PHP_FPM_SCRAPE_URI: "tcp://phpfpm:9000/status"
+      PHP_FPM_SCRAPE_HOST: "tcp://phpfpm:9000"
+      PHP_FPM_SCRAPE_PATH: "/status"
       PHP_FPM_LOG_LEVEL: "warning"
+      PHP_CACHE_SCRIPT_PATH: "/opt/cache.php"
+      PHP_FPM_FIX_PROCESS_COUNT: "true"

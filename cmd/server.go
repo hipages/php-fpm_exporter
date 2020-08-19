@@ -31,7 +31,9 @@ import (
 var (
 	listeningAddress string
 	metricsEndpoint  string
-	scrapeURIs       []string
+	scrapeHost       string
+	scrapePath       string
+	cacheScriptPath  string
 	fixProcessCount  bool
 )
 
@@ -50,9 +52,9 @@ to quickly create a Cobra application.`,
 
 		pm := phpfpm.PoolManager{}
 
-		for _, uri := range scrapeURIs {
-			pm.Add(uri)
-		}
+		// for _, uri := range scrapeURIs {
+		pm.Add(scrapeHost, scrapePath, cacheScriptPath)
+		// }
 
 		exporter := phpfpm.NewExporter(pm)
 
@@ -123,7 +125,11 @@ func init() {
 
 	serverCmd.Flags().StringVar(&listeningAddress, "web.listen-address", ":9253", "Address on which to expose metrics and web interface.")
 	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
+
+	serverCmd.Flags().StringVar(&scrapeHost, "phpfpm.host", "tcp://127.0.0.1:9000", "")
+	serverCmd.Flags().StringVar(&scrapePath, "phpfpm.path", "/status", "Path to the PPH-FPM status")
+	serverCmd.Flags().StringVar(&cacheScriptPath, "cache.script.path", "/opt/cache.php", "Path to the script that returns cache status JSON, e.g. /cache.php")
+
 	serverCmd.Flags().BoolVar(&fixProcessCount, "phpfpm.fix-process-count", false, "Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.")
 
 	//viper.BindEnv("web.listen-address", "PHP_FPM_WEB_LISTEN_ADDRESS")
@@ -134,7 +140,9 @@ func init() {
 	envs := map[string]string{
 		"PHP_FPM_WEB_LISTEN_ADDRESS": "web.listen-address",
 		"PHP_FPM_WEB_TELEMETRY_PATH": "web.telemetry-path",
-		"PHP_FPM_SCRAPE_URI":         "phpfpm.scrape-uri",
+		"PHP_FPM_SCRAPE_HOST":        "phpfpm.host",
+		"PHP_FPM_SCRAPE_PATH":        "phpfpm.path",
+		"PHP_CACHE_SCRIPT_PATH":      "cache.script.path",
 		"PHP_FPM_FIX_PROCESS_COUNT":  "phpfpm.fix-process-count",
 	}
 
