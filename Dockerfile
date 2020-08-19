@@ -1,10 +1,19 @@
+
+FROM golang:latest as builder
+
+WORKDIR /
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build .
+
 FROM alpine:3.11
 
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
 
-COPY php-fpm_exporter /
+COPY --from=builder /php-fpm_exporter php-fpm_exporter /
 
 EXPOSE     9253
 ENTRYPOINT [ "/php-fpm_exporter", "server" ]

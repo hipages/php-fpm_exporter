@@ -16,6 +16,7 @@ package phpfpm
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/url"
@@ -83,6 +84,7 @@ type Pool struct {
 	MaxChildrenReached  int64         `json:"max children reached"`
 	SlowRequests        int64         `json:"slow requests"`
 	Processes           []PoolProcess `json:"processes"`
+	Opcache             OPcacheStatus `json:"-"`
 }
 
 type requestDuration int64
@@ -112,6 +114,50 @@ type PoolProcessStateCounter struct {
 	ReadingHeaders int64
 	Info           int64
 	Ending         int64
+}
+
+// OPcacheStatus contains information about OPcache
+type OPcacheStatus struct {
+	OPcacheEnabled       bool                 `json:"opcache_enabled"`
+	CacheFull            bool                 `json:"cache_full"`
+	RestartPending       bool                 `json:"restart_pending"`
+	RestartInProgress    bool                 `json:"restart_in_progress"`
+	MemoryUsage          MemoryUsage          `json:"memory_usage"`
+	InternedStringsUsage InternedStringsUsage `json:"interned_strings_usage"`
+	OPcacheStatistics    OPcacheStatistics    `json:"opcache_statistics"`
+}
+
+// MemoryUsage contains information about OPcache memory usage
+type MemoryUsage struct {
+	UsedMemory              int64   `json:"used_memory"`
+	FreeMemory              int64   `json:"free_memory"`
+	WastedMemory            int64   `json:"wasted_memory"`
+	CurrentWastedPercentage float64 `json:"current_wasted_percentage"`
+}
+
+// InternedStringsUsage contains information about OPcache interned strings usage
+type InternedStringsUsage struct {
+	BufferSize     int64 `json:"buffer_size"`
+	UsedMemory     int64 `json:"used_memory"`
+	FreeMemory     int64 `json:"free_memory"`
+	NumerOfStrings int64 `json:"number_of_strings"`
+}
+
+// OPcacheStatistics contains information about OPcache statistics
+type OPcacheStatistics struct {
+	NumCachedScripts   int64   `json:"num_cached_scripts"`
+	NumCachedKeys      int64   `json:"num_cached_keys"`
+	MaxCachedKeys      int64   `json:"max_cached_keys"`
+	Hits               int64   `json:"hits"`
+	StartTime          int64   `json:"start_time"`
+	LastRestartTime    int64   `json:"last_restart_time"`
+	OOMRestarts        int64   `json:"oom_restarts"`
+	HashRestarts       int64   `json:"hash_restarts"`
+	ManualRestarts     int64   `json:"manual_restarts"`
+	Misses             int64   `json:"misses"`
+	BlacklistMisses    int64   `json:"blacklist_misses"`
+	BlacklistMissRatio float64 `json:"blacklist_miss_ratio"`
+	OPcacheHitRate     float64 `json:"opcache_hit_rate"`
 }
 
 // Add will add a pool to the pool manager based on the given URI.
@@ -189,6 +235,36 @@ func (p *Pool) Update() (err error) {
 	if err = json.Unmarshal(content, &p); err != nil {
 		log.Errorf("Pool[%v]: %v", p.Address, string(content))
 		return p.error(err)
+	}
+
+	client, err := fcgiclient.Dial("tcp", "phpfpm:9000")
+	if err != nil {
+		panic(err)
+		// return nil, err
+	}
+
+	env = map[string]string{
+		"SCRIPT_FILENAME": "/opt/cache.php",
+	}
+
+	resp, err = client.Get(env)
+	if err != nil {
+		panic(err)
+
+		// return nil, err
+	}
+
+	content, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+
+		// return nil, err
+	}
+
+	// &p.Opcache := new(OPcacheStatus)
+	err = json.Unmarshal(content, &p.Opcache)
+	if err != nil {
+		return errors.New(string(content))
 	}
 
 	return nil

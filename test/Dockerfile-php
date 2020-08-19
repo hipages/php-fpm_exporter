@@ -1,0 +1,4 @@
+FROM hipages/php
+
+COPY cache.php /opt/cache.php
+COPY opcache.ini /usr/local/etc/php/conf.d/opcache.ini
