@@ -65,8 +65,6 @@ type PoolManager struct {
 
 // Pool describes a single PHP-FPM pool that can be reached via a Socket or TCP address
 type Pool struct {
-	// The address of the pool, e.g. tcp://127.0.0.1:9000 or unix:///tmp/php-fpm.sock
-	// Address             string        `json:"-"`
 	ScrapeHost          string        `json:"-"`
 	ScrapePath          string        `json:"-"`
 	ScrapeError         error         `json:"-"`

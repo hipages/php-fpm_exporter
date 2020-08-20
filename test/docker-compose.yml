@@ -26,5 +26,5 @@ services:
       PHP_FPM_SCRAPE_HOST: "tcp://phpfpm:9000"
       PHP_FPM_SCRAPE_PATH: "/status"
       PHP_FPM_LOG_LEVEL: "warning"
-      PHP_CACHE_SCRIPT_PATH: "/opt/cache.php"
+      PHP_CACHE_SCRIPT_PATH: "/oapt/cache.php"
       PHP_FPM_FIX_PROCESS_COUNT: "true"

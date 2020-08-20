@@ -52,9 +52,7 @@ to quickly create a Cobra application.`,
 
 		pm := phpfpm.PoolManager{}
 
-		// for _, uri := range scrapeURIs {
 		pm.Add(scrapeHost, scrapePath, cacheScriptPath)
-		// }
 
 		exporter := phpfpm.NewExporter(pm)
 
