@@ -72,7 +72,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Scan image
-      uses: anchore/scan-action@master
+      uses: anchore/scan-action@v2
       with:
         image-reference: "hipages/php-fpm_exporter:latest"
         dockerfile-path: "./Dockerfile"
