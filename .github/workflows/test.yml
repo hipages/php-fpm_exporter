@@ -85,7 +85,7 @@ jobs:
     steps:
 
     - name: Setup Node.js for use with actions
-      uses: actions/setup-node@v1.1.0
+      uses: actions/setup-node@v2.1.2
 
     - name: Checkout
       uses: actions/checkout@v2
