@@ -74,10 +74,8 @@ jobs:
     - name: Scan image
       uses: anchore/scan-action@v2
       with:
-        image-reference: "hipages/php-fpm_exporter:latest"
-        dockerfile-path: "./Dockerfile"
+        image: "hipages/php-fpm_exporter:latest"
         fail-build: true
-        include-app-packages: true
 
   tag:
     name: Tag
