@@ -76,27 +76,3 @@ jobs:
       with:
         image: "hipages/php-fpm_exporter:latest"
         fail-build: true
-
-  tag:
-    name: Tag
-    runs-on: ubuntu-latest
-    needs: [lint, test, image-scan]
-    if: github.ref == 'refs/heads/master'
-    steps:
-
-    - name: Setup Node.js for use with actions
-      uses: actions/setup-node@v2.1.2
-
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Unshallow
-      run: git fetch --prune --unshallow
-
-    - name: Install semantic-release
-      run: yarn global add --no-progress --non-interactive "semantic-release" "@semantic-release/exec"
-
-    - name: Run semantic-release
-      run: $(yarn global bin)/semantic-release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
