@@ -1,10 +1,33 @@
 name: Release
-on: [release]
+on: [workflow_dispatch]
 jobs:
+  tag:
+    name: Tag
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+
+    - name: Setup Node.js for use with actions
+      uses: actions/setup-node@v2.1.2
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Unshallow
+      run: git fetch --prune --unshallow
+
+    - name: Install semantic-release
+      run: yarn global add --no-progress --non-interactive "semantic-release" "@semantic-release/exec"
+
+    - name: Run semantic-release
+      run: $(yarn global bin)/semantic-release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     runs-on: ubuntu-latest
     # if: startsWith(github.ref, 'refs/tags/')
+    needs: [tag]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -29,6 +52,5 @@ jobs:
         with:
           version: latest
           args: release --rm-dist
-          key: ${{ secrets.YOUR_PRIVATE_KEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
