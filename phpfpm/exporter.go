@@ -139,31 +139,31 @@ func NewExporter(pm PoolManager) *Exporter {
 		processRequests: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_requests"),
 			"The number of requests the process has served.",
-			[]string{"pool", "slot", "scrape_uri"},
+			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processLastRequestMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_last_request_memory"),
 			"The max amount of memory the last request consumed.",
-			[]string{"pool", "slot", "scrape_uri"},
+			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processLastRequestCPU: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_last_request_cpu"),
 			"The %cpu the last request consumed.",
-			[]string{"pool", "slot", "scrape_uri"},
+			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processRequestDuration: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_request_duration"),
 			"The duration in microseconds of the requests.",
-			[]string{"pool", "slot", "scrape_uri"},
+			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_state"),
 			"The state of the process (Idle, Running, ...).",
-			[]string{"pool", "slot", "state", "scrape_uri"},
+			[]string{"pool", "child", "state", "scrape_uri"},
 			nil),
 	}
 }
@@ -210,13 +210,13 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(e.maxChildrenReached, prometheus.CounterValue, float64(pool.MaxChildrenReached), pool.Name, pool.Address)
 		ch <- prometheus.MustNewConstMetric(e.slowRequests, prometheus.CounterValue, float64(pool.SlowRequests), pool.Name, pool.Address)
 
-		for slotNumber, process := range pool.Processes {
-			slotName := fmt.Sprintf("slot%d", slotNumber)
-			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, slotName, process.State, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, slotName, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, slotName, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, slotName, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration), pool.Name, slotName, pool.Address)
+		for childNumber, process := range pool.Processes {
+			childName := fmt.Sprintf("child%d", childNumber)
+			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, childName, process.State, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, childName, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, childName, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, childName, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration), pool.Name, childName, pool.Address)
 		}
 	}
 }
