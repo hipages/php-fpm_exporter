@@ -16,9 +16,8 @@ package phpfpm
 
 import (
 	"sync"
-
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
-	hashids "github.com/speps/go-hashids"
 )
 
 const (
@@ -140,31 +139,31 @@ func NewExporter(pm PoolManager) *Exporter {
 		processRequests: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_requests"),
 			"The number of requests the process has served.",
-			[]string{"pool", "pid_hash", "scrape_uri"},
+			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processLastRequestMemory: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_last_request_memory"),
 			"The max amount of memory the last request consumed.",
-			[]string{"pool", "pid_hash", "scrape_uri"},
+			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processLastRequestCPU: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_last_request_cpu"),
 			"The %cpu the last request consumed.",
-			[]string{"pool", "pid_hash", "scrape_uri"},
+			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processRequestDuration: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_request_duration"),
 			"The duration in microseconds of the requests.",
-			[]string{"pool", "pid_hash", "scrape_uri"},
+			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "process_state"),
 			"The state of the process (Idle, Running, ...).",
-			[]string{"pool", "pid_hash", "state", "scrape_uri"},
+			[]string{"pool", "child", "state", "scrape_uri"},
 			nil),
 	}
 }
@@ -211,13 +210,13 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(e.maxChildrenReached, prometheus.CounterValue, float64(pool.MaxChildrenReached), pool.Name, pool.Address)
 		ch <- prometheus.MustNewConstMetric(e.slowRequests, prometheus.CounterValue, float64(pool.SlowRequests), pool.Name, pool.Address)
 
-		for _, process := range pool.Processes {
-			pidHash := calculateProcessHash(process)
-			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, pidHash, process.State, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, pidHash, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, pidHash, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, pidHash, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration), pool.Name, pidHash, pool.Address)
+		for childNumber, process := range pool.Processes {
+			childName := fmt.Sprintf("%d", childNumber)
+			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, childName, process.State, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, childName, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, childName, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, childName, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration), pool.Name, childName, pool.Address)
 		}
 	}
 }
@@ -241,15 +240,4 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.processLastRequestMemory
 	ch <- e.processLastRequestCPU
 	ch <- e.processRequestDuration
-}
-
-// calculateProcessHash generates a unique identifier for a process to ensure uniqueness across multiple systems/containers
-func calculateProcessHash(pp PoolProcess) string {
-	hd := hashids.NewData()
-	hd.Salt = "php-fpm_exporter"
-	hd.MinLength = 12
-	h, _ := hashids.NewWithData(hd)
-	e, _ := h.Encode([]int{int(pp.StartTime), int(pp.PID)})
-
-	return e
 }
