@@ -235,6 +235,10 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/all-contri
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/hipages/php-fpm_exporter.svg)](https://starchart.cc/hipages/php-fpm_exporter)
+
 ## Alternatives
 
 * [bakins/php-fpm-exporter](https://github.com/bakins/php-fpm-exporter)
