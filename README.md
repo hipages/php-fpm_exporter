@@ -225,6 +225,7 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/all-contri
     <td align="center"><a href="https://github.com/Nyoroon"><img src="https://avatars1.githubusercontent.com/u/182203?v=4" width="100px;" alt=""/><br /><sub><b>Smoked Cheese</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/issues?q=author%3ANyoroon" title="Bug reports">🐛</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=Nyoroon" title="Code">💻</a></td>
     <td align="center"><a href="https://www.old-games.ru"><img src="https://avatars3.githubusercontent.com/u/7388179?v=4" width="100px;" alt=""/><br /><sub><b>Alexander</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=sas1024" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/stanxing"><img src="https://avatars2.githubusercontent.com/u/23288646?v=4" width="100px;" alt=""/><br /><sub><b>Stan Xing</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=stanxing" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/itcsoft54"><img src="https://avatars2.githubusercontent.com/u/22459145?v=4" width="100px;" alt=""/><br /><sub><b>itcsoft54</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=itcsoft54" title="Code">💻</a></td>
   </tr>
 </table>
 
