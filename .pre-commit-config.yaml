@@ -1,0 +1,21 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v3.3.0
+  hooks:
+  - id: trailing-whitespace
+  - id: check-added-large-files
+  - id: check-json
+  - id: pretty-format-json
+    args: ['--autofix']
+  - id: check-merge-conflict
+  - id: check-symlinks
+  - id: check-yaml
+  - id: detect-private-key
+  - id: check-merge-conflict
+  - id: check-executables-have-shebangs
+  - id: end-of-file-fixer
+  - id: mixed-line-ending
+- repo:  https://github.com/golangci/golangci-lint
+  rev: v1.32.2
+  hooks:
+  - id: golangci-lint

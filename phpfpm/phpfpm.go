@@ -213,7 +213,7 @@ func JSONResponseFixer(content []byte) []byte {
 		sold := match[0]
 		snew := match[1] + string(requestURI) + match[3]
 
-		c = strings.Replace(c, sold, snew, -1)
+		c = strings.ReplaceAll(c, sold, snew)
 	}
 
 	return []byte(c)

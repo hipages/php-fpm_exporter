@@ -23,21 +23,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Install golangci-lint
-      run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.7
-
-    - name: Lint
-      run: $(go env GOPATH)/bin/golangci-lint run
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v2
+      with:
+        version: v1.32
 
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.14
+    - name: Setup Go
       uses: actions/setup-go@v2.1.3
       with:
-        go-version: 1.14
+        go-version: ^1.15.0
       id: go
 
     - name: Checkout
@@ -62,10 +61,10 @@ jobs:
     - name: Unshallow
       run: git fetch --prune --unshallow
 
-    - name: Set up Go
+    - name: Setup Go
       uses: actions/setup-go@v2.1.3
       with:
-        go-version: 1.14
+        go-version: ^1.15.0
       id: go
 
     - name: Run GoReleaser
