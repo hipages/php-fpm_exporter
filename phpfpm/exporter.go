@@ -213,7 +213,20 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 		for childNumber, process := range pool.Processes {
 			childName := fmt.Sprintf("%d", childNumber)
-			ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, 1, pool.Name, childName, process.State, pool.Address)
+
+			states := map[string]int{
+				"Idle":                         0,
+				"Running":                      0,
+				"Finishing":                    0,
+				"Reading headers":              0,
+				"Getting request informations": 0,
+				"Ending":                       0,
+			}
+			states[process.State]++
+
+			for stateName, inState := range states {
+				ch <- prometheus.MustNewConstMetric(e.processState, prometheus.GaugeValue, float64(inState), pool.Name, childName, stateName, pool.Address)
+			}
 			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, childName, pool.Address)
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, childName, pool.Address)
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, childName, pool.Address)
