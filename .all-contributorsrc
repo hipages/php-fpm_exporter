@@ -76,6 +76,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "adduc",
+      "name": "John S Long",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/44527?v=4",
+      "profile": "http://128.io",
+      "contributions": [
+        "infra"
+      ]
     }
   ],
   "contributorsPerLine": 7,
