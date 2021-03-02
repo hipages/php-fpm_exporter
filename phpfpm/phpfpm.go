@@ -41,7 +41,7 @@ const PoolProcessRequestFinishing string = "Finishing"
 const PoolProcessRequestReadingHeaders string = "Reading headers"
 
 // PoolProcessRequestInfo defines a process that is getting request information.
-const PoolProcessRequestInfo string = "Getting request informations"
+const PoolProcessRequestInfo string = "Getting request information"
 
 // PoolProcessRequestEnding defines a process that is about to end.
 const PoolProcessRequestEnding string = "Ending"
