@@ -41,11 +41,11 @@ jobs:
           go-version: ^1.15.0
         id: go
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASS }}
+#       - name: Login to DockerHub
+#         uses: docker/login-action@v1
+#         with:
+#           username: ${{ secrets.DOCKER_USER }}
+#           password: ${{ secrets.DOCKER_PASS }}
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2.2.1
