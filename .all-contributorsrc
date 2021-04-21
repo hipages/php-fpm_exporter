@@ -85,6 +85,15 @@
       "contributions": [
         "infra"
       ]
+    },
+    {
+      "login": "danielocallaghan",
+      "name": "Daniel O'Callaghan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/62488?v=4",
+      "profile": "https://github.com/danielocallaghan",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
