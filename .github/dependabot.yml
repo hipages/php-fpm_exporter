@@ -2,18 +2,18 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: "develop"
+    target-branch: "master"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "docker"
     directory: "/"
-    target-branch: "develop"
+    target-branch: "master"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "gomod"
     directory: "/"
-    target-branch: "develop"
+    target-branch: "master"
     schedule:
       interval: "daily"
