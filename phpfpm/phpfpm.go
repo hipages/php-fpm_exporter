@@ -40,8 +40,9 @@ const PoolProcessRequestFinishing string = "Finishing"
 // PoolProcessRequestReadingHeaders defines a process that is reading headers.
 const PoolProcessRequestReadingHeaders string = "Reading headers"
 
-// PoolProcessRequestInfo defines a process that is getting request information.
+// PoolProcessRequestInfo defines a process that is getting request information. Was changed in PHP 7.4 to PoolProcessRequestInfo74
 const PoolProcessRequestInfo string = "Getting request informations"
+const PoolProcessRequestInfo74 string = "Getting request information"
 
 // PoolProcessRequestEnding defines a process that is about to end.
 const PoolProcessRequestEnding string = "Ending"
@@ -230,6 +231,7 @@ func CountProcessState(processes []PoolProcess) (active int64, idle int64, total
 		case PoolProcessRequestEnding:
 		case PoolProcessRequestFinishing:
 		case PoolProcessRequestInfo:
+		case PoolProcessRequestInfo74:
 		case PoolProcessRequestReadingHeaders:
 			active++
 		default:
