@@ -96,6 +96,15 @@
       ]
     },
     {
+      "login": "stchr",
+      "name": "Simon Stücher",
+      "avatar_url": "https://avatars.githubusercontent.com/u/166079?v=4",
+      "profile": "https://github.com/stchr",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
       "login": "andresterba",
       "name": "André Sterba",
       "avatar_url": "https://avatars.githubusercontent.com/u/48120735?v=4",
