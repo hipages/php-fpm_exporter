@@ -94,6 +94,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "andresterba",
+      "name": "André Sterba",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48120735?v=4",
+      "profile": "https://sterba.dev",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
