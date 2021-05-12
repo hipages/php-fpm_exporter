@@ -94,6 +94,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "stchr",
+      "name": "Simon Stücher",
+      "avatar_url": "https://avatars.githubusercontent.com/u/166079?v=4",
+      "profile": "https://github.com/stchr",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
