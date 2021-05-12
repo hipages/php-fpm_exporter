@@ -232,6 +232,7 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/all-contri
     <td align="center"><a href="http://128.io"><img src="https://avatars0.githubusercontent.com/u/44527?v=4?s=100" width="100px;" alt=""/><br /><sub><b>John S Long</b></sub></a><br /><a href="#infra-adduc" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     <td align="center"><a href="https://github.com/danielocallaghan"><img src="https://avatars.githubusercontent.com/u/62488?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniel O'Callaghan</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=danielocallaghan" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/stchr"><img src="https://avatars.githubusercontent.com/u/166079?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Simon Stücher</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/issues?q=author%3Astchr" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://sterba.dev"><img src="https://avatars.githubusercontent.com/u/48120735?v=4?s=100" width="100px;" alt=""/><br /><sub><b>André Sterba</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=andresterba" title="Code">💻</a></td>
   </tr>
 </table>
 
