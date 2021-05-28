@@ -4,4 +4,4 @@ web:
 php-fpm:
   scrape-uri:
     - "tcp://127.0.0.1:9000/status"
-  fix-process-count: true
+  fix-process-count: false
