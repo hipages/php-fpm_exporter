@@ -27,5 +27,7 @@ changelog:
       - '^docs:'
 
 archives:
-  - format: binary
-  - format: tar.gz
+  - id: default
+    format: binary
+  - id: targz
+    format: tar.gz
