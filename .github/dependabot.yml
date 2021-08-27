@@ -4,16 +4,16 @@ updates:
     directory: "/"
     target-branch: "master"
     schedule:
-      interval: "daily"
+      interval: "monthly"
 
   - package-ecosystem: "docker"
     directory: "/"
     target-branch: "master"
     schedule:
-      interval: "daily"
+      interval: "monthly"
 
   - package-ecosystem: "gomod"
     directory: "/"
     target-branch: "master"
     schedule:
-      interval: "daily"
+      interval: "monthly"
