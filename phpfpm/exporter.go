@@ -39,9 +39,7 @@ type Exporter struct {
 	listenQueue              *prometheus.Desc
 	maxListenQueue           *prometheus.Desc
 	listenQueueLength        *prometheus.Desc
-	idleProcesses            *prometheus.Desc
-	activeProcesses          *prometheus.Desc
-	totalProcesses           *prometheus.Desc
+	processes                *prometheus.Desc
 	maxActiveProcesses       *prometheus.Desc
 	maxChildrenReached       *prometheus.Desc
 	slowRequests             *prometheus.Desc
@@ -66,19 +64,19 @@ func NewExporter(pm PoolManager) *Exporter {
 			nil),
 
 		scrapeFailues: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "scrape_failures"),
+			prometheus.BuildFQName(namespace, "", "scrape_failures_total"),
 			"The number of failures scraping from PHP-FPM.",
 			[]string{"pool", "scrape_uri"},
 			nil),
 
 		startSince: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "start_since"),
+			prometheus.BuildFQName(namespace, "", "start_time_seconds"),
 			"The number of seconds since FPM has started.",
 			[]string{"pool", "scrape_uri"},
 			nil),
 
 		acceptedConnections: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "accepted_connections"),
+			prometheus.BuildFQName(namespace, "", "accepted_connections_total"),
 			"The number of requests accepted by the pool.",
 			[]string{"pool", "scrape_uri"},
 			nil),
@@ -101,22 +99,10 @@ func NewExporter(pm PoolManager) *Exporter {
 			[]string{"pool", "scrape_uri"},
 			nil),
 
-		idleProcesses: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "idle_processes"),
-			"The number of idle processes.",
-			[]string{"pool", "scrape_uri"},
-			nil),
-
-		activeProcesses: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "active_processes"),
-			"The number of active processes.",
-			[]string{"pool", "scrape_uri"},
-			nil),
-
-		totalProcesses: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "total_processes"),
-			"The number of idle + active processes.",
-			[]string{"pool", "scrape_uri"},
+		processes: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "processes"),
+			"The number of processes.",
+			[]string{"pool", "scrape_uri", "state"},
 			nil),
 
 		maxActiveProcesses: prometheus.NewDesc(
@@ -126,25 +112,25 @@ func NewExporter(pm PoolManager) *Exporter {
 			nil),
 
 		maxChildrenReached: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "max_children_reached"),
+			prometheus.BuildFQName(namespace, "", "max_children_reached_total"),
 			"The number of times, the process limit has been reached, when pm tries to start more children (works only for pm 'dynamic' and 'ondemand').",
 			[]string{"pool", "scrape_uri"},
 			nil),
 
 		slowRequests: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "slow_requests"),
+			prometheus.BuildFQName(namespace, "", "slow_requests_total"),
 			"The number of requests that exceeded your 'request_slowlog_timeout' value.",
 			[]string{"pool", "scrape_uri"},
 			nil),
 
 		processRequests: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "process_requests"),
+			prometheus.BuildFQName(namespace, "", "process_requests_total"),
 			"The number of requests the process has served.",
 			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
 		processLastRequestMemory: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "process_last_request_memory"),
+			prometheus.BuildFQName(namespace, "", "process_last_request_memory_bytes"),
 			"The max amount of memory the last request consumed.",
 			[]string{"pool", "child", "scrape_uri"},
 			nil),
@@ -156,8 +142,8 @@ func NewExporter(pm PoolManager) *Exporter {
 			nil),
 
 		processRequestDuration: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "process_request_duration"),
-			"The duration in microseconds of the requests.",
+			prometheus.BuildFQName(namespace, "", "process_request_duration_seconds"),
+			"The duration in seconds of the requests.",
 			[]string{"pool", "child", "scrape_uri"},
 			nil),
 
@@ -187,7 +173,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
-		active, idle, total := CountProcessState(pool.Processes)
+		active, idle := CountProcessState(pool.Processes)
 		if !e.CountProcessState && (active != pool.ActiveProcesses || idle != pool.IdleProcesses) {
 			log.Error("Inconsistent active and idle processes reported. Set `--fix-process-count` to have this calculated by php-fpm_exporter instead.")
 		}
@@ -195,25 +181,23 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		if !e.CountProcessState {
 			active = pool.ActiveProcesses
 			idle = pool.IdleProcesses
-			total = pool.TotalProcesses
 		}
 
 		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 1, pool.Name, pool.Address)
-		ch <- prometheus.MustNewConstMetric(e.startSince, prometheus.CounterValue, float64(pool.StartSince), pool.Name, pool.Address)
+		ch <- prometheus.MustNewConstMetric(e.startSince, prometheus.GaugeValue, float64(pool.StartSince), pool.Name, pool.Address)
 		ch <- prometheus.MustNewConstMetric(e.acceptedConnections, prometheus.CounterValue, float64(pool.AcceptedConnections), pool.Name, pool.Address)
 		ch <- prometheus.MustNewConstMetric(e.listenQueue, prometheus.GaugeValue, float64(pool.ListenQueue), pool.Name, pool.Address)
 		ch <- prometheus.MustNewConstMetric(e.maxListenQueue, prometheus.CounterValue, float64(pool.MaxListenQueue), pool.Name, pool.Address)
 		ch <- prometheus.MustNewConstMetric(e.listenQueueLength, prometheus.GaugeValue, float64(pool.ListenQueueLength), pool.Name, pool.Address)
-		ch <- prometheus.MustNewConstMetric(e.idleProcesses, prometheus.GaugeValue, float64(idle), pool.Name, pool.Address)
-		ch <- prometheus.MustNewConstMetric(e.activeProcesses, prometheus.GaugeValue, float64(active), pool.Name, pool.Address)
-		ch <- prometheus.MustNewConstMetric(e.totalProcesses, prometheus.GaugeValue, float64(total), pool.Name, pool.Address)
-		ch <- prometheus.MustNewConstMetric(e.maxActiveProcesses, prometheus.CounterValue, float64(pool.MaxActiveProcesses), pool.Name, pool.Address)
+		ch <- prometheus.MustNewConstMetric(e.processes, prometheus.GaugeValue, float64(idle), pool.Name, pool.Address, "idle")
+		ch <- prometheus.MustNewConstMetric(e.processes, prometheus.GaugeValue, float64(active), pool.Name, pool.Address, "active")
+		ch <- prometheus.MustNewConstMetric(e.maxActiveProcesses, prometheus.GaugeValue, float64(pool.MaxActiveProcesses), pool.Name, pool.Address)
 		ch <- prometheus.MustNewConstMetric(e.maxChildrenReached, prometheus.CounterValue, float64(pool.MaxChildrenReached), pool.Name, pool.Address)
 		ch <- prometheus.MustNewConstMetric(e.slowRequests, prometheus.CounterValue, float64(pool.SlowRequests), pool.Name, pool.Address)
 
 		for childNumber, process := range pool.Processes {
 			childName := fmt.Sprintf("%d", childNumber)
-			
+
 			states := map[string]int{
 				PoolProcessRequestIdle:           0,
 				PoolProcessRequestRunning:        0,
@@ -230,7 +214,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(e.processRequests, prometheus.CounterValue, float64(process.Requests), pool.Name, childName, pool.Address)
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestMemory, prometheus.GaugeValue, float64(process.LastRequestMemory), pool.Name, childName, pool.Address)
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, childName, pool.Address)
-			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration), pool.Name, childName, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration/1e6), pool.Name, childName, pool.Address)
 		}
 	}
 }
@@ -243,9 +227,7 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.listenQueue
 	ch <- e.maxListenQueue
 	ch <- e.listenQueueLength
-	ch <- e.idleProcesses
-	ch <- e.activeProcesses
-	ch <- e.totalProcesses
+	ch <- e.processes
 	ch <- e.maxActiveProcesses
 	ch <- e.maxChildrenReached
 	ch <- e.slowRequests
