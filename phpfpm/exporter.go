@@ -189,7 +189,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 		active, idle, total := CountProcessState(pool.Processes)
 		if !e.CountProcessState && (active != pool.ActiveProcesses || idle != pool.IdleProcesses) {
-			log.Error("Inconsistent active and idle processes reported. Set `--fix-process-count` to have this calculated by php-fpm_exporter instead.")
+			log.Error("Inconsistent active and idle processes reported. Set `--phpfpm.fix-process-count` to have this calculated by php-fpm_exporter instead.")
 		}
 
 		if !e.CountProcessState {
