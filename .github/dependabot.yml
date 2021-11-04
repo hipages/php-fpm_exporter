@@ -10,7 +10,7 @@ updates:
     directory: "/"
     target-branch: "master"
     schedule:
-      interval: "monthly"
+      interval: "daily"
 
   - package-ecosystem: "gomod"
     directory: "/"
