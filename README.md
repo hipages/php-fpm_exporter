@@ -200,7 +200,7 @@ brew install docker-compose bats-core kaos/shell/bats-assert kaos/shell/bats-sup
 After the components are installed run the E2E tests:
 
 ```bash
-make tests-e2e
+make test-e2e
 ```
 
 ## Contributing

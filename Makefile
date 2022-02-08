@@ -20,7 +20,7 @@ test-coverage-html: ## Create a code coverage report in HTML
 	go tool cover -html .cover/cover.out
 
 test-e2e:
-	bats tests/e2e.bats
+	bats test/e2e.bats
 
 lint: ## Run linters
 	golangci-lint run

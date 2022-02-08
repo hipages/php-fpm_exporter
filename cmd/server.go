@@ -102,7 +102,7 @@ to quickly create a Cobra application.`,
 		<-c
 
 		// Create a deadline to wait for.
-		var wait time.Duration
+		wait := time.Second * 10
 		ctx, cancel := context.WithTimeout(context.Background(), wait)
 		defer cancel()
 		// Doesn't block if no connections, but will otherwise wait
