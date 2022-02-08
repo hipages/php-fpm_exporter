@@ -213,7 +213,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 		for childNumber, process := range pool.Processes {
 			childName := fmt.Sprintf("%d", childNumber)
-			
+
 			states := map[string]int{
 				PoolProcessRequestIdle:           0,
 				PoolProcessRequestRunning:        0,
