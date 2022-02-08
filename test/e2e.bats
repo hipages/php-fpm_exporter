@@ -32,3 +32,8 @@ teardown() {
     assert_output --partial 'phpfpm_up{pool="www",scrape_uri="tcp://phpfpm2:9000/status"} 1'
     assert_output --partial 'phpfpm_up{pool="www",scrape_uri="tcp://phpfpm3:9000/status"} 1'
 }
+
+@test "Should exit cleanly" {
+    run docker-compose -f ./test/docker-compose-e2e.yml stop exporter
+    docker-compose -f ./test/docker-compose-e2e.yml ps exporter | grep -q "Exit 0"
+}
