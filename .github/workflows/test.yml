@@ -80,7 +80,6 @@ jobs:
       id: scan
       with:
         image: "hipages/php-fpm_exporter:latest"
-        fail-build: true
         acs-report-enable: true
 
     - name: Upload Anchore scan SARIF report
