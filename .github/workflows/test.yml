@@ -72,7 +72,6 @@ jobs:
       with:
         version: latest
         args: release --rm-dist --skip-validate --skip-publish
-        key: ${{ secrets.YOUR_PRIVATE_KEY }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
