@@ -7,6 +7,9 @@ help: ## List targets & descriptions
 deps: ## Get dependencies
 	go get -d -v ./...
 
+build: deps ## Build the binary
+	go build -a -o php-fpm_exporter main.go
+
 test: ## Run tests
 	go test -short ./...
 
