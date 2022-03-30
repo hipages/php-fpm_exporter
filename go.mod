@@ -18,6 +18,8 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tomasen/fcgi_client v0.0.0-20180423082037-2bb3d819fd19
+	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.52.0 // indirect
 )
 
