@@ -14,7 +14,6 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-        ref: "refs/pull/${{ github.event.number }}/merge"
 
     - name: Install semantic-release
       run: yarn global add --no-progress --non-interactive "semantic-release" "@semantic-release/exec"
@@ -33,7 +32,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: "refs/pull/${{ github.event.number }}/merge"
 
       - name: Set up Go
         uses: actions/setup-go@v2.1.4

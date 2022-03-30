@@ -1,11 +1,7 @@
-name: Test
+name: Test PR
 on:
   pull_request_target:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-      - 'releases/*'
 
 jobs:
 

@@ -36,8 +36,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        ref: "refs/pull/${{ github.event.number }}/merge"
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
