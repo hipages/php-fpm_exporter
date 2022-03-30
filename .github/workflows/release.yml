@@ -12,9 +12,9 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v3
-
-    - name: Unshallow
-      run: git fetch --prune --unshallow
+      with:
+        fetch-depth: 0
+        ref: "refs/pull/${{ github.event.number }}/merge"
 
     - name: Install semantic-release
       run: yarn global add --no-progress --non-interactive "semantic-release" "@semantic-release/exec"
@@ -31,9 +31,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Unshallow
-        run: git fetch --prune --unshallow
+        with:
+          fetch-depth: 0
+          ref: "refs/pull/${{ github.event.number }}/merge"
 
       - name: Set up Go
         uses: actions/setup-go@v2.1.4
