@@ -71,7 +71,7 @@ jobs:
       uses: goreleaser/goreleaser-action@v2.8.1
       with:
         version: latest
-        args: release --rm-dist --skip-validate --skip-publish
+        args: release --rm-dist --skip-validate --skip-publish --snapshot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
