@@ -11,15 +11,43 @@ builds:
       - arm64
 
 dockers:
-  - image_templates:
-      - "hipages/php-fpm_exporter:latest"
-      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
-      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}"
-      - "hipages/php-fpm_exporter:{{ .Major }}"
+  - use: buildx
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
     build_flag_templates:
+      - "--platform=linux/amd64"
       - "--build-arg=VERSION={{.Version}}"
       - "--build-arg=BUILD_DATE={{.Date}}"
       - "--build-arg=VCS_REF={{.FullCommit}}"
+  - use: buildx
+    goos: linux
+    goarch: arm64
+    image_templates:
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+    build_flag_templates:
+      - "--platform=linux/arm64/v8"
+      - "--build-arg=VERSION={{.Version}}"
+      - "--build-arg=BUILD_DATE={{.Date}}"
+      - "--build-arg=VCS_REF={{.FullCommit}}"
+docker_manifests:
+  - name_template: "hipages/php-fpm_exporter:latest"
+    image_templates:
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+  - name_template: "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+    image_templates:
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+  - name_template: "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}"
+    image_templates:
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+  - name_template: "hipages/php-fpm_exporter:{{ .Major }}"
+    image_templates:
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
 
 changelog:
   filters:
