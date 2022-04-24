@@ -1,5 +1,5 @@
 ---
-repositoryUrl: https://github.com/hipages/php-fpm_exporter
+repositoryUrl: https://github.com/opsworks/php-fpm_exporter
 verifyConditions: ['@semantic-release/github']
 prepare: []
 publish: ['@semantic-release/github']

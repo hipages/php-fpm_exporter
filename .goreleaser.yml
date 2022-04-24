@@ -11,20 +11,44 @@ builds:
       - arm64
 
 dockers:
-  - image_templates:
-      - "hipages/php-fpm_exporter:latest"
-      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
-      - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}"
-      - "hipages/php-fpm_exporter:{{ .Major }}"
+  # https://goreleaser.com/customization/docker/
+  - use: buildx
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "opsworks/php-fpm_exporter:latest"
+      - "opsworks/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "opsworks/php-fpm_exporter:{{ .Major }}.{{ .Minor }}"
+      - "opsworks/php-fpm_exporter:{{ .Major }}"
     build_flag_templates:
       - "--build-arg=VERSION={{.Version}}"
       - "--build-arg=BUILD_DATE={{.Date}}"
       - "--build-arg=VCS_REF={{.FullCommit}}"
+  - use: buildx
+    goos: linux
+    goarch: arm64
+    image_templates:
+      - "opsworks/php-fpm_exporter:latest"
+      - "opsworks/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "opsworks/php-fpm_exporter:{{ .Major }}.{{ .Minor }}"
+      - "opsworks/php-fpm_exporter:{{ .Major }}"
+    build_flag_templates:
+      - "--build-arg=VERSION={{.Version}}"
+      - "--build-arg=BUILD_DATE={{.Date}}"
+      - "--build-arg=VCS_REF={{.FullCommit}}"
+docker_manifests:
+  # https://goreleaser.com/customization/docker_manifest/
+  - name_template: 0hlov3s/{{ .ProjectName }}:{{ .Version }}
+    image_templates:
+      - "opsworks/php-fpm_exporter:latest"
+      - "opsworks/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "opsworks/php-fpm_exporter:{{ .Major }}.{{ .Minor }}"
+      - "opsworks/php-fpm_exporter:{{ .Major }}"
 
 changelog:
   filters:
     exclude:
-      - '^docs:'
+      - "^docs:"
 
 archives:
   - id: default

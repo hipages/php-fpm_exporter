@@ -15,7 +15,7 @@ services:
       PHP_FPM_PM_STATUS_PATH: "/status"
 
   exporter:
-    image: hipages/php-fpm_exporter:latest
+    image: opsworks/php-fpm_exporter:latest
     ports:
       - "9253:9253"
     environment:

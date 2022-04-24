@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hipages/php-fpm_exporter/phpfpm"
+	"github.com/opsworks/php-fpm_exporter/phpfpm"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

@@ -37,7 +37,7 @@ func TestCountProcessState(t *testing.T) {
 	assert.Equal(t, int64(3), total, "total processes")
 }
 
-// https://github.com/hipages/php-fpm_exporter/issues/10
+// https://github.com/opsworks/php-fpm_exporter/issues/10
 func TestCannotUnmarshalNumberIssue10(t *testing.T) {
 	pool := Pool{}
 	content := []byte(`{
@@ -96,7 +96,7 @@ func TestCannotUnmarshalNumberIssue10(t *testing.T) {
 	assert.Equal(t, int(pool.Processes[1].RequestDuration), 0, "request duration set to 0 because it couldn't be deserialized")
 }
 
-// https://github.com/hipages/php-fpm_exporter/issues/24
+// https://github.com/opsworks/php-fpm_exporter/issues/24
 func TestInvalidCharacterIssue24(t *testing.T) {
 	// todo: Implement fcgi client dependency injection to allow testing of Pool.Update
 }

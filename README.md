@@ -1,13 +1,13 @@
 # php-fpm_exporter
 
-![Test](https://github.com/hipages/php-fpm_exporter/workflows/Test/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/hipages/php-fpm_exporter)](https://goreportcard.com/report/github.com/hipages/php-fpm_exporter)
-[![GoDoc](https://godoc.org/github.com/hipages/php-fpm_exporter?status.svg)](https://godoc.org/github.com/hipages/php-fpm_exporter)
+![Test](https://github.com/opsworks/php-fpm_exporter/workflows/Test/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/opsworks/php-fpm_exporter)](https://goreportcard.com/report/github.com/opsworks/php-fpm_exporter)
+[![GoDoc](https://godoc.org/github.com/opsworks/php-fpm_exporter?status.svg)](https://godoc.org/github.com/opsworks/php-fpm_exporter)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=hipages_php-fpm_exporter&metric=alert_status)](https://sonarcloud.io/dashboard?id=hipages_php-fpm_exporter)
-[![Docker Pulls](https://img.shields.io/docker/pulls/hipages/php-fpm_exporter.svg)](https://hub.docker.com/r/hipages/php-fpm_exporter/)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Percentage of issues still open")
-[![Open Source Helpers](https://www.codetriage.com/hipages/php-fpm_exporter/badges/users.svg)](https://www.codetriage.com/hipages/php-fpm_exporter)
+[![Docker Pulls](https://img.shields.io/docker/pulls/opsworks/php-fpm_exporter.svg)](https://hub.docker.com/r/opsworks/php-fpm_exporter/)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/opsworks/php-fpm_exporter.svg)](http://isitmaintained.com/project/opsworks/php-fpm_exporter "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/opsworks/php-fpm_exporter.svg)](http://isitmaintained.com/project/opsworks/php-fpm_exporter "Percentage of issues still open")
+[![Open Source Helpers](https://www.codetriage.com/opsworks/php-fpm_exporter/badges/users.svg)](https://www.codetriage.com/opsworks/php-fpm_exporter)
 [![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors)
 
 A [prometheus](https://prometheus.io/) exporter for PHP-FPM.
@@ -48,7 +48,7 @@ A webserver such as NGINX or Apache is **NOT** needed!
 
 ## Usage
 
-`php-fpm_exporter` is released as [binary](https://github.com/hipages/php-fpm_exporter/releases) and [docker](https://hub.docker.com/r/hipages/php-fpm_exporter/) image.
+`php-fpm_exporter` is released as [binary](https://github.com/opsworks/php-fpm_exporter/releases) and [docker](https://hub.docker.com/r/opsworks/php-fpm_exporter/) image.
 It uses sensible defaults which usually avoids the need to use command parameters or environment variables.
 
 `php-fpm_exporter` supports 2 commands, `get` and `server`.
@@ -108,13 +108,13 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 
 * Run docker manually
   ```
-  docker pull hipages/php-fpm_exporter
-  docker run -it --rm -e PHP_FPM_SCRAPE_URI="tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status" hipages/php-fpm_exporter
+  docker pull opsworks/php-fpm_exporter
+  docker run -it --rm -e PHP_FPM_SCRAPE_URI="tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status" opsworks/php-fpm_exporter
   ```
 
 * Run the docker-compose example
   ```
-  git clone git@github.com:hipages/php-fpm_exporter.git
+  git clone git@github.com:opsworks/php-fpm_exporter.git
   cd php-fpm_exporter/test
   docker-compose -p php-fpm_exporter up
   ```
@@ -220,19 +220,19 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/all-contri
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="http://enricostahn.com"><img src="https://avatars3.githubusercontent.com/u/362174?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Enrico Stahn</b></sub></a><br /><a href="#question-estahn" title="Answering Questions">💬</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=estahn" title="Code">💻</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=estahn" title="Documentation">📖</a> <a href="#maintenance-estahn" title="Maintenance">🚧</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=estahn" title="Tests">⚠️</a></td>
-    <td align="center"><a href="https://github.com/XooR"><img src="https://avatars2.githubusercontent.com/u/120429?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stanislav Antic</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=XooR" title="Code">💻</a></td>
-    <td align="center"><a href="http://herb123456.blogspot.com/"><img src="https://avatars1.githubusercontent.com/u/1568165?v=4?s=100" width="100px;" alt=""/><br /><sub><b>herb</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=herb123456" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/Nyoroon"><img src="https://avatars1.githubusercontent.com/u/182203?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Smoked Cheese</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/issues?q=author%3ANyoroon" title="Bug reports">🐛</a> <a href="https://github.com/hipages/php-fpm_exporter/commits?author=Nyoroon" title="Code">💻</a></td>
-    <td align="center"><a href="https://www.old-games.ru"><img src="https://avatars3.githubusercontent.com/u/7388179?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alexander</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=sas1024" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/stanxing"><img src="https://avatars2.githubusercontent.com/u/23288646?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stan Xing</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=stanxing" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/itcsoft54"><img src="https://avatars2.githubusercontent.com/u/22459145?v=4?s=100" width="100px;" alt=""/><br /><sub><b>itcsoft54</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=itcsoft54" title="Code">💻</a></td>
+    <td align="center"><a href="http://enricostahn.com"><img src="https://avatars3.githubusercontent.com/u/362174?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Enrico Stahn</b></sub></a><br /><a href="#question-estahn" title="Answering Questions">💬</a> <a href="https://github.com/opsworks/php-fpm_exporter/commits?author=estahn" title="Code">💻</a> <a href="https://github.com/opsworks/php-fpm_exporter/commits?author=estahn" title="Documentation">📖</a> <a href="#maintenance-estahn" title="Maintenance">🚧</a> <a href="https://github.com/opsworks/php-fpm_exporter/commits?author=estahn" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/XooR"><img src="https://avatars2.githubusercontent.com/u/120429?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stanislav Antic</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/commits?author=XooR" title="Code">💻</a></td>
+    <td align="center"><a href="http://herb123456.blogspot.com/"><img src="https://avatars1.githubusercontent.com/u/1568165?v=4?s=100" width="100px;" alt=""/><br /><sub><b>herb</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/commits?author=herb123456" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Nyoroon"><img src="https://avatars1.githubusercontent.com/u/182203?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Smoked Cheese</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/issues?q=author%3ANyoroon" title="Bug reports">🐛</a> <a href="https://github.com/opsworks/php-fpm_exporter/commits?author=Nyoroon" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.old-games.ru"><img src="https://avatars3.githubusercontent.com/u/7388179?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alexander</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/commits?author=sas1024" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/stanxing"><img src="https://avatars2.githubusercontent.com/u/23288646?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stan Xing</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/commits?author=stanxing" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/itcsoft54"><img src="https://avatars2.githubusercontent.com/u/22459145?v=4?s=100" width="100px;" alt=""/><br /><sub><b>itcsoft54</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/commits?author=itcsoft54" title="Code">💻</a></td>
   </tr>
   <tr>
     <td align="center"><a href="http://128.io"><img src="https://avatars0.githubusercontent.com/u/44527?v=4?s=100" width="100px;" alt=""/><br /><sub><b>John S Long</b></sub></a><br /><a href="#infra-adduc" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-    <td align="center"><a href="https://github.com/danielocallaghan"><img src="https://avatars.githubusercontent.com/u/62488?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniel O'Callaghan</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=danielocallaghan" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/stchr"><img src="https://avatars.githubusercontent.com/u/166079?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Simon Stücher</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/issues?q=author%3Astchr" title="Bug reports">🐛</a></td>
-    <td align="center"><a href="https://sterba.dev"><img src="https://avatars.githubusercontent.com/u/48120735?v=4?s=100" width="100px;" alt=""/><br /><sub><b>André Sterba</b></sub></a><br /><a href="https://github.com/hipages/php-fpm_exporter/commits?author=andresterba" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/danielocallaghan"><img src="https://avatars.githubusercontent.com/u/62488?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniel O'Callaghan</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/commits?author=danielocallaghan" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/stchr"><img src="https://avatars.githubusercontent.com/u/166079?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Simon Stücher</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/issues?q=author%3Astchr" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://sterba.dev"><img src="https://avatars.githubusercontent.com/u/48120735?v=4?s=100" width="100px;" alt=""/><br /><sub><b>André Sterba</b></sub></a><br /><a href="https://github.com/opsworks/php-fpm_exporter/commits?author=andresterba" title="Code">💻</a></td>
   </tr>
 </table>
 
@@ -245,7 +245,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/hipages/php-fpm_exporter.svg)](https://starchart.cc/hipages/php-fpm_exporter)
+[![Stargazers over time](https://starchart.cc/opsworks/php-fpm_exporter.svg)](https://starchart.cc/opsworks/php-fpm_exporter)
 
 ## Alternatives
 
