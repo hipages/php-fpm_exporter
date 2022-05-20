@@ -16,6 +16,7 @@ dockers:
     goarch: amd64
     image_templates:
       - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
     build_flag_templates:
       - "--platform=linux/amd64"
       - "--build-arg=VERSION={{.Version}}"
@@ -26,6 +27,7 @@ dockers:
     goarch: arm64
     image_templates:
       - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
     build_flag_templates:
       - "--platform=linux/arm64/v8"
       - "--build-arg=VERSION={{.Version}}"
@@ -48,6 +50,22 @@ docker_manifests:
     image_templates:
       - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
       - "hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+  - name_template: "ghcr.io/hipages/php-fpm_exporter:latest"
+    image_templates:
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+  - name_template: "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+    image_templates:
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+  - name_template: "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}"
+    image_templates:
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+  - name_template: "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}"
+    image_templates:
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
+      - "ghcr.io/hipages/php-fpm_exporter:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
 
 changelog:
   filters:
