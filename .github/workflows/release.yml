@@ -1,5 +1,10 @@
 name: Release
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+  # Release patches and secruity updates on a schedule
+  schedule:
+    - cron: "0 0 1 * *"
+
 jobs:
   tag:
     name: Tag
