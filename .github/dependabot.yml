@@ -1,19 +1,14 @@
 version: 2
+registries:
+  docker-registry-quay-io:
+    type: docker-registry
+    url: https://quay.io
+    username: "${{secrets.DEPENDABOT_USER}}"
+    password: "${{secrets.DEPENDABOT_PASS}}"
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    target-branch: "master"
-    schedule:
-      interval: "monthly"
-
-  - package-ecosystem: "docker"
-    directory: "/"
-    target-branch: "master"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
-    directory: "/"
-    target-branch: "master"
-    schedule:
-      interval: "monthly"
+- package-ecosystem: "docker"
+  directory: "/"
+  schedule:
+    interval: "daily"
+  registries:
+  - docker-registry-quay-io
