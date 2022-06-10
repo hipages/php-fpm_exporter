@@ -1,6 +1,6 @@
 FROM golang:1.18.3 as builder
 
-WORKDIR /go/src/github.com/percona/mongodb_exporter
+WORKDIR /go/src/github.com/hipages/php-fpm_exporter
 COPY . .
 RUN go mod download
 RUN make build
