@@ -27,3 +27,6 @@ lint: ## Run linters
 
 fmt: ## Fix formatting issues
 	goimports -w .
+
+build: 
+	CGO_ENABLED=0 go build -o php-fpm_exporter .
