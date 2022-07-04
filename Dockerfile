@@ -13,7 +13,7 @@ EXPOSE     9253
 ENTRYPOINT [ "/bin/php-fpm_exporter", "server" ]
 
 
-FROM quay.io/sysdig/sysdig-mini-ubi:1.3.1 as ubi
+FROM quay.io/sysdig/sysdig-mini-ubi:1.3.2 as ubi
 COPY --from=builder /bin/php-fpm_exporter /bin/php-fpm_exporter
 EXPOSE     9253
 ENTRYPOINT [ "/bin/php-fpm_exporter", "server" ]
