@@ -6,7 +6,7 @@ jobs:
   enable-auto-merge:
     runs-on: ubuntu-latest
 
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
+    if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
     steps:
     - uses: alexwilson/enable-github-automerge-action@main
       with:
