@@ -172,7 +172,7 @@ TBD
 
 ## Grafana Dasbhoard for Kubernetes
 
-The Grafana dashboard can be found [here](https://grafana.com/dashboards/4912).
+The Grafana dashboard can be found [here](https://grafana.com/grafana/dashboards/4912-kubernetes-php-fpm/).
 There is also a more generic version [here](./grafana/kubernetes-php-fpm.json).
 
 <img src="https://grafana.com/api/dashboards/4912/images/3079/image" width="600">
