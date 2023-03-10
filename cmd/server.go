@@ -18,10 +18,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/hipages/php-fpm_exporter/phpfpm"
+	"github.com/hipages/php-fpm_exporter/scripts"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
@@ -33,6 +35,7 @@ var (
 	metricsEndpoint  string
 	scrapeURIs       []string
 	fixProcessCount  bool
+	scriptsPaths     []string
 )
 
 // serverCmd represents the server command
@@ -71,7 +74,30 @@ to quickly create a Cobra application.`,
 			IdleTimeout:  time.Second * 60,
 		}
 
-		http.Handle(metricsEndpoint, promhttp.Handler())
+		gatherers := prometheus.Gatherers{
+			prometheus.DefaultGatherer,
+		}
+
+		// add scripts gatherer if scripts are defined
+		if len(scriptsPaths) > 0 {
+
+			addresses := make([]string, len(scrapeURIs))
+			for i, uri := range scrapeURIs {
+				addresses[i] = strings.SplitN(uri, ";", 2)[0]
+			}
+
+			log.Debugf("Scripts to execute: %v", scriptsPaths)
+			log.Debugf("Scrape URIs: %v", addresses)
+
+			sGather := &scripts.Gathered{
+				Scripts: scriptsPaths,
+				Sockets: addresses,
+			}
+
+			gatherers = append(gatherers, sGather)
+		}
+
+		http.Handle(metricsEndpoint, promhttp.HandlerFor(gatherers, promhttp.HandlerOpts{}))
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			_, err := w.Write([]byte(`<html>
 			 <head><title>php-fpm_exporter</title></head>
@@ -125,6 +151,7 @@ func init() {
 	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
 	serverCmd.Flags().BoolVar(&fixProcessCount, "phpfpm.fix-process-count", false, "Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.")
+	serverCmd.Flags().StringSliceVar(&scriptsPaths, "scripts.path", []string{}, "PHP scripts to execute to get additional metrics.")
 
 	// Workaround since vipers BindEnv is currently not working as expected (see https://github.com/spf13/viper/issues/461)
 
