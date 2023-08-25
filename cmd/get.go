@@ -16,6 +16,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -37,12 +39,27 @@ var getCmd = &cobra.Command{
 
 * php-fpm_exporter get --phpfpm.scrape-uri 127.0.0.1:9000 --phpfpm.scrape-uri 127.0.0.1:9001 [...]
 * php-fpm_exporter get --phpfpm.scrape-uri 127.0.0.1:9000,127.0.0.1:9001,[...]
+* php-fpm_exporter get --phpfpm.sockets-directory /run/php/
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		pm := phpfpm.PoolManager{}
 
-		for _, uri := range scrapeURIs {
-			pm.Add(uri)
+		// Check if we are using directory.
+		if socketsDirectory == "" {
+			for _, uri := range scrapeURIs {
+				pm.Add(uri)
+			}
+		}
+
+		// Sockets directory is specified.
+		if socketsDirectory != "" {
+			// Traverse directory for php sockets.
+			_ = filepath.Walk(socketsDirectory, func(path string, info os.FileInfo, err error) error {
+				if err == nil && info.Mode()&os.ModeSocket != 0 {
+					pm.Add("unix://" + path + ";" + socketsStatus)
+				}
+				return nil
+			})
 		}
 
 		if err := pm.Update(); err != nil {
@@ -102,5 +119,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	getCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
+	getCmd.Flags().StringVar(&socketsDirectory, "phpfpm.sockets-directory", "", "Path of the directory where PHP-FPM sockets are located, e.g. /run/php/. When using phpfpm.sockets-directory, phpfpm.scrape-uri is ignored.")
+	getCmd.Flags().StringVar(&socketsStatus, "phpfpm.sockets-status", "/status", "URI of a status page. Used with phpfpm.sockets-directory. Has to be same for all pools in directory. Defaults to /status")
 	getCmd.Flags().StringVar(&output, "out", "text", "Output format. One of: text, json, spew")
 }

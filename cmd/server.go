@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -33,6 +34,8 @@ var (
 	metricsEndpoint  string
 	scrapeURIs       []string
 	fixProcessCount  bool
+	socketsDirectory string
+	socketsStatus    string
 )
 
 // serverCmd represents the server command
@@ -50,8 +53,22 @@ to quickly create a Cobra application.`,
 
 		pm := phpfpm.PoolManager{}
 
-		for _, uri := range scrapeURIs {
-			pm.Add(uri)
+		// Check if we are using directory.
+		if socketsDirectory == "" {
+			for _, uri := range scrapeURIs {
+				pm.Add(uri)
+			}
+		}
+
+		// Sockets directory is specified.
+		if socketsDirectory != "" {
+			// Traverse directory for php sockets.
+			_ = filepath.Walk(socketsDirectory, func(path string, info os.FileInfo, err error) error {
+				if err == nil && info.Mode()&os.ModeSocket != 0 {
+					pm.Add("unix://" + path + ";" + socketsStatus)
+				}
+				return nil
+			})
 		}
 
 		exporter := phpfpm.NewExporter(pm)
@@ -124,6 +141,8 @@ func init() {
 	serverCmd.Flags().StringVar(&listeningAddress, "web.listen-address", ":9253", "Address on which to expose metrics and web interface.")
 	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
+	serverCmd.Flags().StringVar(&socketsDirectory, "phpfpm.sockets-directory", "", "Path of the directory where PHP-FPM sockets are located, e.g. /run/php/. When using phpfpm.sockets-directory, phpfpm.scrape-uri is ignored.")
+	serverCmd.Flags().StringVar(&socketsStatus, "phpfpm.sockets-status", "/status", "URI of a status page. Used with phpfpm.sockets-directory. Has to be same for all pools in directory.")
 	serverCmd.Flags().BoolVar(&fixProcessCount, "phpfpm.fix-process-count", false, "Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.")
 
 	// Workaround since vipers BindEnv is currently not working as expected (see https://github.com/spf13/viper/issues/461)
@@ -132,6 +151,8 @@ func init() {
 		"PHP_FPM_WEB_LISTEN_ADDRESS": "web.listen-address",
 		"PHP_FPM_WEB_TELEMETRY_PATH": "web.telemetry-path",
 		"PHP_FPM_SCRAPE_URI":         "phpfpm.scrape-uri",
+		"PHP_FPM_SOCKETS_DIRECTORY":  "phpfpm.sockets-directory",
+		"PHP_FPM_SOCKETS_STATUS":     "phpfpm.sockets-status",
 		"PHP_FPM_FIX_PROCESS_COUNT":  "phpfpm.fix-process-count",
 	}
 
