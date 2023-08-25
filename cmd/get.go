@@ -49,10 +49,7 @@ var getCmd = &cobra.Command{
 			for _, uri := range scrapeURIs {
 				pm.Add(uri)
 			}
-		}
-
-		// Sockets directory is specified.
-		if socketsDirectory != "" {
+		} else {
 			// Traverse directory for php sockets.
 			_ = filepath.Walk(socketsDirectory, func(path string, info os.FileInfo, err error) error {
 				if err == nil && info.Mode()&os.ModeSocket != 0 {
