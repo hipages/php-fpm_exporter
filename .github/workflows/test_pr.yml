@@ -76,7 +76,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Scan image
-      uses: anchore/scan-action@v3.3.7
+      uses: anchore/scan-action@v3.6.4
       id: scan
       with:
         image: "hipages/php-fpm_exporter:latest"
