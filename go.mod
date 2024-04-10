@@ -11,6 +11,8 @@ require (
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.7.1
 	github.com/tomasen/fcgi_client v0.0.0-20180423082037-2bb3d819fd19
+	golang.org/x/text v0.3.8 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )
 
 go 1.13
