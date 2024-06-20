@@ -202,21 +202,22 @@ func (p *Pool) error(err error) error {
 	return err
 }
 
-// JSONResponseFixer resolves encoding issues with PHP-FPMs JSON response
 func JSONResponseFixer(content []byte) []byte {
+	reValue := regexp.MustCompile(`^"(.*)"(,)?$`)
+	reKey := regexp.MustCompile(`"[^"]+":`)
+
 	c := string(content)
-	re := regexp.MustCompile(`(,"request uri":)"(.*?)"(,"content length":)`)
-	matches := re.FindAllStringSubmatch(c, -1)
-
-	for _, match := range matches {
-		requestURI, _ := json.Marshal(match[2])
-
-		sold := match[0]
-		snew := match[1] + string(requestURI) + match[3]
-
-		c = strings.ReplaceAll(c, sold, snew)
+	values := reKey.Split(c, -1)
+	for _, value := range values {
+		matches := reValue.FindAllSubmatch([]byte(value), 1)
+		if len(matches) == 1 {
+			escaped, _ := json.Marshal(string(matches[0][1]))
+			if(len(matches[0]) > 2) {
+				escaped = append(escaped, matches[0][2]...)
+			}
+			c = strings.ReplaceAll(c, string(matches[0][0]), string(escaped))
+		}
 	}
-
 	return []byte(c)
 }
 
