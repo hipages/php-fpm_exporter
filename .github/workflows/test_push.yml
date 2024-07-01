@@ -14,7 +14,7 @@ jobs:
     steps:
 
     - name: Set up Go
-      uses: actions/setup-go@v4.1.0
+      uses: actions/setup-go@v5.0.1
       with:
         go-version: 1.17
       id: go
@@ -35,7 +35,7 @@ jobs:
     steps:
 
     - name: Setup Go
-      uses: actions/setup-go@v4.1.0
+      uses: actions/setup-go@v5.0.1
       with:
         go-version: 1.17
       id: go
@@ -62,7 +62,7 @@ jobs:
         fetch-depth: 0
 
     - name: Setup Go
-      uses: actions/setup-go@v4.1.0
+      uses: actions/setup-go@v5.0.1
       with:
         go-version: 1.17
       id: go
