@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -127,6 +128,24 @@ func (pm *PoolManager) Update() (err error) {
 	wg := &sync.WaitGroup{}
 
 	started := time.Now()
+
+	ips, err := net.LookupIP("php-fpm-headless.logistic-services.svc.cluster.local")
+
+	if err != nil {
+		log.Error(err)
+		return nil
+	}
+
+	pm.Pools = []Pool{}
+	log.Debug("Found ips for scraping")
+	log.Debug(ips)
+
+	for _, ip := range ips {
+		uri := fmt.Sprintf("tcp://%s:9000/status", ip.String())
+		log.Debugf("Generated uri for scraping: %s", uri)
+		p := Pool{Address: uri}
+		pm.Pools = append(pm.Pools, p)
+	}
 
 	for idx := range pm.Pools {
 		wg.Add(1)
