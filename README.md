@@ -3,7 +3,6 @@
 ![Test](https://github.com/hipages/php-fpm_exporter/workflows/Test/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hipages/php-fpm_exporter)](https://goreportcard.com/report/github.com/hipages/php-fpm_exporter)
 [![GoDoc](https://godoc.org/github.com/hipages/php-fpm_exporter?status.svg)](https://godoc.org/github.com/hipages/php-fpm_exporter)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=hipages_php-fpm_exporter&metric=alert_status)](https://sonarcloud.io/dashboard?id=hipages_php-fpm_exporter)
 [![Docker Pulls](https://img.shields.io/docker/pulls/hipages/php-fpm_exporter.svg)](https://hub.docker.com/r/hipages/php-fpm_exporter/)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/hipages/php-fpm_exporter.svg)](http://isitmaintained.com/project/hipages/php-fpm_exporter "Percentage of issues still open")
