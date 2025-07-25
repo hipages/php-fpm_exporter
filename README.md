@@ -170,7 +170,7 @@ TBD
 # TYPE phpfpm_up gauge
 ```
 
-## Grafana Dasbhoard for Kubernetes
+## Grafana Dashboard for Kubernetes
 
 The Grafana dashboard can be found [here](https://grafana.com/dashboards/4912).
 There is also a more generic version [here](./grafana/kubernetes-php-fpm.json).
