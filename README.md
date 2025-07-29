@@ -57,13 +57,15 @@ The `server` command runs the server required for prometheus to retrieve the sta
 
 ### Options and defaults
 
-| Option                 | Description                                           | Environment variable         | Default value   |
-|------------------------|-------------------------------------------------------|------------------------------|-----------------|
-| `--web.listen-address` | Address on which to expose metrics and web interface. | `PHP_FPM_WEB_LISTEN_ADDRESS` | [`:9253`](https://github.com/prometheus/prometheus/wiki/Default-port-allocations)         |
-| `--web.telemetry-path` | Path under which to expose metrics.                   | `PHP_FPM_WEB_TELEMETRY_PATH` | `/metrics`      |
-| `--phpfpm.scrape-uri`  | FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status | `PHP_FPM_SCRAPE_URI` | `tcp://127.0.0.1:9000/status` |
-| `--phpfpm.fix-process-count`  | Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers. | `PHP_FPM_FIX_PROCESS_COUNT`| `false` |
-| `--log.level`          | Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal] (default "error") | `PHP_FPM_LOG_LEVEL` | info |
+| Option                       | Description                                                                                                                                 | Environment variable         | Default value   |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|------------------------------|-----------------|
+| `--web.listen-address`       | Address on which to expose metrics and web interface.                                                                                       | `PHP_FPM_WEB_LISTEN_ADDRESS` | [`:9253`](https://github.com/prometheus/prometheus/wiki/Default-port-allocations)         |
+| `--web.telemetry-path`       | Path under which to expose metrics.                                                                                                         | `PHP_FPM_WEB_TELEMETRY_PATH` | `/metrics`      |
+| `--phpfpm.scrape-uri`        | FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status                                                           | `PHP_FPM_SCRAPE_URI` | `tcp://127.0.0.1:9000/status` |
+| `--phpfpm.sockets-directory` | Path of the directory where PHP-FPM sockets are located, e.g. /run/php/. When using phpfpm.sockets-directory, phpfpm.scrape-uri is ignored. | `PHP_FPM_SOCKETS_DIRECTORY` |  |
+| `--phpfpm.sockets-status`    | URI of a status page. Used with phpfpm.sockets-directory. Has to be same for all pools in directory.                                        | `PHP_FPM_SOCKETS_STATUS` | `/status` |
+| `--phpfpm.fix-process-count` | Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.        | `PHP_FPM_FIX_PROCESS_COUNT`| `false` |
+| `--log.level`                | Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal] (default "error")                       | `PHP_FPM_LOG_LEVEL` | info |
 
 ### Why `--phpfpm.fix-process-count`?
 
@@ -94,6 +96,11 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
   php-fpm_exporter get --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status
   ```
 
+* Retrieve information from all PHP-FPM pools `/var/run/php/` directory with status endpoint being `/fpm-status`:
+  ```
+  php-fpm_exporter get --phpfpm.sockets-directory /var/run/php/ --phpfpm.sockets-status /fpm-status
+  ```
+
 * Run as server with 2 pools:
   ```
   php-fpm_exporter server --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status
@@ -102,6 +109,11 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 * Run as server and enable process count fix via environment variable:
   ```
   PHP_FPM_FIX_PROCESS_COUNT=1 go run main.go server --web.listen-address ":12345" --log.level=debug
+  ```
+
+* Run as server with all pools in `/run/php/` directory with status endpoint being `/status`:
+  ```
+  php-fpm_exporter server --phpfpm.sockets-directory /run/php/
   ```
 
 ### Docker Examples
