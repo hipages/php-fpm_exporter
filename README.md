@@ -104,6 +104,13 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
   PHP_FPM_FIX_PROCESS_COUNT=1 go run main.go server --web.listen-address ":12345" --log.level=debug
   ```
 
+### Configure PHP-FPM to expose its metrics
+To expose PHP-FPM metrics, you need to configure the PHP-FPM status page in the `php-fpm.conf` file (or `/etc/php/7.4/fpm/pool.d/www.conf`). Add or Uncomment the following configuration to the file:
+```
+pm.status_path = /status
+```
+Then, restart PHP-FPM to apply the changes.
+
 ### Docker Examples
 
 * Run docker manually
