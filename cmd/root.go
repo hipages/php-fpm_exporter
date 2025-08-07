@@ -82,6 +82,24 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
+	// use config file
+	if len(viper.GetString("web.listen-address")) > 0 {
+		listeningAddress = viper.GetString("web.listen-address")
+	}
+
+	if len(viper.GetString("web.telemetry-path")) > 0 {
+		metricsEndpoint = viper.GetString("web.telemetry-path")
+	}
+
+	if len(viper.GetStringSlice("phpfpm.scrape-uri")) > 0 {
+		scrapeURIs = viper.GetStringSlice("phpfpm.scrape-uri")
+	}
+
+	if viper.GetString("phpfpm.fix-process-count") == "true" {
+		fixProcessCount = viper.GetBool("phpfpm.fix-process-count")
+	}
+	log.Println(viper.Get("web.listen-address"))
 }
 
 // initLogger configures the log level
