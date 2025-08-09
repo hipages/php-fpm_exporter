@@ -1,6 +1,6 @@
 # php-fpm_exporter
 
-![Test](https://github.com/hipages/php-fpm_exporter/workflows/Test/badge.svg)
+![Test](https://github.com/hipages/php-fpm_exporter/actions/workflows/test_push.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hipages/php-fpm_exporter)](https://goreportcard.com/report/github.com/hipages/php-fpm_exporter)
 [![GoDoc](https://godoc.org/github.com/hipages/php-fpm_exporter?status.svg)](https://godoc.org/github.com/hipages/php-fpm_exporter)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=hipages_php-fpm_exporter&metric=alert_status)](https://sonarcloud.io/dashboard?id=hipages_php-fpm_exporter)
