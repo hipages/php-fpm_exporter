@@ -103,7 +103,7 @@ func TestInvalidCharacterIssue24(t *testing.T) {
 
 func TestJsonResponseFixer(t *testing.T) {
 	pool := Pool{}
-	content := []byte(`{"pool":"www","process manager":"dynamic","start time":1528367006,"start since":15073840,"accepted conn":1577112,"listen queue":0,"max listen queue":0,"listen queue len":0,"idle processes":16,"active processes":1,"total processes":17,"max active processes":15,"max children reached":0,"slow requests":0, "processes":[{"pid":15873,"state":"Idle","start time":1543354120,"start since":86726,"requests":853,"request duration":5721,"request method":"GET","request uri":"/vbseo.php?ALTERNATE_TEMPLATES=|%20echo%20"Content-Type:%20text%2Fhtml"%3Becho%20""%20%3B%20id%00","content length":0,"user":"-","script":"/www/forum.example.com/vbseo.php","last request cpu":349.59,"last request memory":786432},{"pid":123,"state":"Idle","start time":1543354120,"start since":86726,"requests":853,"request duration":5721,"request method":"GET","request uri":"123/vbseo.php?ALTERNATE_TEMPLATES=|%20echo%20"Content-Type:%20text%2Fhtml"%3Becho%20""%20%3B%20id%00","content length":0,"user":"-","script":"/www/forum.example.com/vbseo.php","last request cpu":349.59,"last request memory":786432}]}`)
+	content := []byte(`{"pool":"www","process manager":"dynamic","start time":1528367006,"start since":15073840,"accepted conn":1577112,"listen queue":0,"max listen queue":0,"listen queue len":0,"idle processes":16,"active processes":1,"total processes":17,"max active processes":15,"max children reached":0,"slow requests":0, "processes":[{"pid":15873,"state":"Idle","start time":1543354120,"start since":86726,"requests":853,"request duration":5721,"request method":"GET","request uri":"/vbseo.php?ALTERNATE_TEMPLATES=|%20echo%20"Content-Type:%20text%2Fhtml"%3Becho%20""%20%3B%20id%00","content length":0,"user":"my\windows\program","script":"/www/forum.example.com/vbseo.php","last request cpu":349.59,"last request memory":786432},{"pid":123,"state":"Idle","start time":1543354120,"start since":86726,"requests":853,"request duration":5721,"request method":"GET","request uri":"123/vbseo.php?ALTERNATE_TEMPLATES=|%20echo%20"Content-Type:%20text%2Fhtml"%3Becho%20""%20%3B%20id%00","content length":0,"user":"eol\n","script":"/www/forum.example.com/vbseo.php","last request cpu":349.59,"last request memory":786432}]}`)
 
 	content = JSONResponseFixer(content)
 
@@ -111,7 +111,9 @@ func TestJsonResponseFixer(t *testing.T) {
 
 	assert.Nil(t, err, "successfully unmarshal on invalid 'request uri'")
 	assert.Equal(t, pool.Processes[0].RequestURI, `/vbseo.php?ALTERNATE_TEMPLATES=|%20echo%20"Content-Type:%20text%2Fhtml"%3Becho%20""%20%3B%20id%00`, "request uri couldn't be deserialized")
+	assert.Equal(t, pool.Processes[0].User, `my\windows\program`, "user couldn't be deserialized")
 	assert.Equal(t, pool.Processes[1].RequestURI, `123/vbseo.php?ALTERNATE_TEMPLATES=|%20echo%20"Content-Type:%20text%2Fhtml"%3Becho%20""%20%3B%20id%00`, "request uri couldn't be deserialized")
+	assert.Equal(t, pool.Processes[1].User, `eol\n`, "user couldn't be deserialized")
 }
 
 func TestParseURL(t *testing.T) {
