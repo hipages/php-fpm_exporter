@@ -127,7 +127,68 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 
 ### Kubernetes Example
 
-TBD
+Here a stripped example on how to use `php-fpm_exporter` as [sidecar container](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/)
+
+You need to add it as `initContainer` with the `restartPolicy=Always`.
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: com-datacadamia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: com-datacadamia
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: com-datacadamia
+    spec:
+      initContainers:
+        - name: php-fpm-exporter
+          image: hipages/php-fpm_exporter:2.2.0
+          restartPolicy: Always
+          env:
+            - name: PHP_FPM_SCRAPE_URI
+              value: "tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status"
+            - name: PHP_FPM_FIX_PROCESS_COUNT
+              value: "1"
+          ports:
+            - containerPort: 9253
+      containers:
+        - name: com-datacadamia
+          image: ghcr.io/combostrap/dokuwiki@sha256:739aef0272ae87086ff6fabf081c00ddb634d67fe5e8624c1bf47996ade5ff80
+          ports:
+            - containerPort: 80
+```
+
+If you use a [ServiceMonitor](https://prometheus-operator.dev/docs/developer/getting-started/#deploying-a-sample-application), you need to expose the `9253` port in your service.
+
+Example:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: com-datacadamia
+  labels:
+    app.kubernetes.io/name: com-datacadamia
+spec:
+  selector:
+    # Traffic is routed to pods with the following label
+    app.kubernetes.io/name: com-datacadamia
+  ports:
+    - name: web
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: exporter
+      protocol: TCP
+      port: 9253
+      targetPort: 9253
+  type: ClusterIP
+```
+
 
 ## Metrics collected
 
