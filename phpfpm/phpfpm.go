@@ -221,7 +221,7 @@ func JSONResponseFixer(content []byte) []byte {
 }
 
 // CountProcessState return the calculated metrics based on the reported processes.
-func CountProcessState(processes []PoolProcess) (active int64, idle int64, total int64) {
+func CountProcessState(processes []PoolProcess) (active int64, idle int64) {
 	for idx := range processes {
 		switch processes[idx].State {
 		case PoolProcessRequestRunning:
@@ -239,7 +239,7 @@ func CountProcessState(processes []PoolProcess) (active int64, idle int64, total
 		}
 	}
 
-	return active, idle, active + idle
+	return active, idle
 }
 
 // parseURL creates elements to be passed into fcgiclient.DialTimeout

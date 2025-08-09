@@ -30,11 +30,10 @@ func TestCountProcessState(t *testing.T) {
 		{State: PoolProcessRequestEnding},
 	}
 
-	active, idle, total := CountProcessState(processes)
+	active, idle := CountProcessState(processes)
 
 	assert.Equal(t, int64(2), active, "active processes")
 	assert.Equal(t, int64(1), idle, "idle processes")
-	assert.Equal(t, int64(3), total, "total processes")
 }
 
 // https://github.com/hipages/php-fpm_exporter/issues/10
