@@ -27,7 +27,7 @@ A webserver such as NGINX or Apache is **NOT** needed!
   * [Docker Examples](#docker-examples)
   * [Kubernetes Example](#kubernetes-example)
 - [Metrics collected](#metrics-collected)
-- [Grafana Dasbhoard for Kubernetes](#grafana-dasbhoard-for-kubernetes)
+- [Grafana Dashboard for Kubernetes](#grafana-dashboard-for-kubernetes)
 - [FAQ](#faq)
 - [Development](#development)
   * [E2E Tests](#e2e-tests)
@@ -170,7 +170,7 @@ TBD
 # TYPE phpfpm_up gauge
 ```
 
-## Grafana Dasbhoard for Kubernetes
+## Grafana Dashboard for Kubernetes
 
 The Grafana dashboard can be found [here](https://grafana.com/dashboards/4912).
 There is also a more generic version [here](./grafana/kubernetes-php-fpm.json).
