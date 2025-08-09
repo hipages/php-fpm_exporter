@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -46,6 +47,9 @@ const PoolProcessRequestInfo74 string = "Getting request information"
 
 // PoolProcessRequestEnding defines a process that is about to end.
 const PoolProcessRequestEnding string = "Ending"
+
+// ProgramIdentifier is send to the php-fpm as SERVER_SOFTWARE
+const ProgramIdentifier string = "go / php-fpm_exporter"
 
 var log logger
 
@@ -156,35 +160,52 @@ func (p *Pool) Update() (err error) {
 		return p.error(err)
 	}
 
-	fcgi, err := fcgiclient.DialTimeout(scheme, address, time.Duration(3)*time.Second)
-	if err != nil {
-		return p.error(err)
-	}
+	var t = 3 * time.Second
+	var resp *http.Response
 
-	defer fcgi.Close()
-
-	env := map[string]string{
-		"SCRIPT_FILENAME": path,
-		"SCRIPT_NAME":     path,
-		"SERVER_SOFTWARE": "go / php-fpm_exporter",
-		"REMOTE_ADDR":     "127.0.0.1",
-		"QUERY_STRING":    "json&full",
-	}
-
-	resp, err := fcgi.Get(env)
-	if err != nil {
-		return p.error(err)
+	if scheme == "http" || scheme == "https" {
+		req, err := http.NewRequest("GET", p.Address, nil)
+		req.URL.RawQuery = "json&full"
+		req.Header = http.Header{
+			"SCRIPT_FILENAME": []string{path},
+			"SCRIPT_NAME":     []string{path},
+			"SERVER_SOFTWARE": []string{ProgramIdentifier},
+			"REMOTE_ADDR":     []string{"127.0.0.1"},
+		}
+		if err != nil {
+			return p.error(err)
+		}
+		client := http.Client{Timeout: t}
+		resp, err = client.Do(req)
+		if err != nil {
+			return p.error(err)
+		}
+	} else {
+		fcgi, err := fcgiclient.DialTimeout(scheme, address, t)
+		if err != nil {
+			return p.error(err)
+		}
+		defer fcgi.Close()
+		env := map[string]string{
+			"SCRIPT_FILENAME": path,
+			"SCRIPT_NAME":     path,
+			"SERVER_SOFTWARE": ProgramIdentifier,
+			"REMOTE_ADDR":     "127.0.0.1",
+			"QUERY_STRING":    "json&full",
+		}
+		resp, err = fcgi.Get(env)
+		if err != nil {
+			return p.error(err)
+		}
 	}
 
 	defer resp.Body.Close()
-
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return p.error(err)
 	}
 
 	content = JSONResponseFixer(content)
-
 	log.Debugf("Pool[%v]: %v", p.Address, string(content))
 
 	if err = json.Unmarshal(content, &p); err != nil {
