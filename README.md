@@ -109,7 +109,7 @@ If you like to have a more granular reporting please use `phpfpm_process_state`.
 * Run docker manually
   ```
   docker pull hipages/php-fpm_exporter
-  docker run -it --rm -e PHP_FPM_SCRAPE_URI="tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status" hipages/php-fpm_exporter
+  docker run -it --rm -p 9253:9253 -e PHP_FPM_SCRAPE_URI="tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status" hipages/php-fpm_exporter
   ```
 
 * Run the docker-compose example
