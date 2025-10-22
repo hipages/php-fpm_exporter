@@ -69,7 +69,7 @@ to quickly create a Cobra application.`,
 			exporter.CountProcessState = true
 		}
 
-		prometheus.MustRegister(exporter)
+		registry, registerer := newMetricsRegistry(constLabels, exporter)
 
 		srv := &http.Server{
 			Addr: listeningAddress,
@@ -79,12 +79,13 @@ to quickly create a Cobra application.`,
 			IdleTimeout:  time.Second * 60,
 		}
 
-		http.Handle(metricsEndpoint, promhttp.Handler())
+		metricsHandler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+		http.Handle(metricsEndpoint, promhttp.InstrumentMetricHandler(registerer, metricsHandler))
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { //revive:disable-line:unused-parameter
 			_, err := w.Write([]byte(`<html>
-			 <head><title>php-fpm_exporter</title></head>
-			 <body>
-			 <h1>php-fpm_exporter</h1>
+		 <head><title>php-fpm_exporter</title></head>
+		 <body>
+		 <h1>php-fpm_exporter</h1>
 			 <p><a href='` + metricsEndpoint + `'>Metrics</a></p>
 			 </body>
 			 </html>`))
@@ -200,4 +201,20 @@ func parseLabelPair(input string) (string, string, error) {
 	}
 
 	return key, value, nil
+}
+
+func newMetricsRegistry(constLabels prometheus.Labels, exporter prometheus.Collector) (*prometheus.Registry, prometheus.Registerer) {
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(exporter)
+
+	registerer := prometheus.Registerer(registry)
+
+	if len(constLabels) > 0 {
+		registerer = prometheus.WrapRegistererWith(constLabels, registerer)
+	}
+
+	registerer.MustRegister(prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}))
+	registerer.MustRegister(prometheus.NewGoCollector())
+
+	return registry, registerer
 }

@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
+	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/require"
 )
 
@@ -65,4 +67,53 @@ func TestParseConstLabels(t *testing.T) {
 			require.Equal(t, tc.expected, labels)
 		})
 	}
+}
+
+func TestGoMetricsIncludeConstLabels(t *testing.T) {
+	constLabels := prometheus.Labels{"const": "value"}
+
+	dummy := prometheus.NewGauge(prometheus.GaugeOpts{
+		Name:        "dummy_metric",
+		Help:        "dummy metric for registry setup",
+		ConstLabels: constLabels,
+	})
+	dummy.Set(1)
+
+	registry, _ := newMetricsRegistry(constLabels, dummy)
+
+	families, err := registry.Gather()
+	require.NoError(t, err)
+
+	var dummyHasConst, goHasConst bool
+	for _, family := range families {
+		switch {
+		case family.GetName() == "dummy_metric":
+			dummyHasConst = familyHasLabel(family, "const", "value")
+		case strings.HasPrefix(family.GetName(), "go_"):
+			goHasConst = goHasConst || familyHasLabel(family, "const", "value")
+		}
+	}
+
+	require.True(t, dummyHasConst, "expected dummy_metric to include the constant label")
+	require.True(t, goHasConst, "expected at least one go_* metric to include the constant label")
+}
+
+func metricHasLabel(metric *dto.Metric, name, value string) bool {
+	for _, label := range metric.GetLabel() {
+		if label.GetName() == name && label.GetValue() == value {
+			return true
+		}
+	}
+
+	return false
+}
+
+func familyHasLabel(family *dto.MetricFamily, name, value string) bool {
+	for _, metric := range family.Metric {
+		if metricHasLabel(metric, name, value) {
+			return true
+		}
+	}
+
+	return false
 }
