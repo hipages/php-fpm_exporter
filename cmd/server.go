@@ -29,10 +29,11 @@ import (
 
 // Configuration variables
 var (
-	listeningAddress string
-	metricsEndpoint  string
-	scrapeURIs       []string
-	fixProcessCount  bool
+	listeningAddress  string
+	metricsEndpoint   string
+	scrapeURIs        []string
+	fixProcessCount   bool
+	opcacheScriptPath string
 )
 
 // serverCmd represents the server command
@@ -52,6 +53,11 @@ to quickly create a Cobra application.`,
 
 		for _, uri := range scrapeURIs {
 			pm.Add(uri)
+		}
+
+		if opcacheScriptPath != "" {
+			log.Infof("OPcache metrics enabled, script path: %v", opcacheScriptPath)
+			pm.OpcacheScriptPath = opcacheScriptPath
 		}
 
 		exporter := phpfpm.NewExporter(pm)
@@ -125,6 +131,7 @@ func init() {
 	serverCmd.Flags().StringVar(&metricsEndpoint, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 	serverCmd.Flags().StringSliceVar(&scrapeURIs, "phpfpm.scrape-uri", []string{"tcp://127.0.0.1:9000/status"}, "FastCGI address, e.g. unix:///tmp/php.sock;/status or tcp://127.0.0.1:9000/status")
 	serverCmd.Flags().BoolVar(&fixProcessCount, "phpfpm.fix-process-count", false, "Enable to calculate process numbers via php-fpm_exporter since PHP-FPM sporadically reports wrong active/idle/total process numbers.")
+	serverCmd.Flags().StringVar(&opcacheScriptPath, "phpfpm.opcache-script", "", "Path to a PHP script that outputs OPcache statistics as JSON (e.g. /app/statistics.php). When set, OPcache metrics will be collected by executing this script via FastCGI.")
 
 	// Workaround since vipers BindEnv is currently not working as expected (see https://github.com/spf13/viper/issues/461)
 
@@ -133,6 +140,7 @@ func init() {
 		"PHP_FPM_WEB_TELEMETRY_PATH": "web.telemetry-path",
 		"PHP_FPM_SCRAPE_URI":         "phpfpm.scrape-uri",
 		"PHP_FPM_FIX_PROCESS_COUNT":  "phpfpm.fix-process-count",
+		"PHP_FPM_OPCACHE_SCRIPT":     "phpfpm.opcache-script",
 	}
 
 	mapEnvVars(envs, serverCmd)
