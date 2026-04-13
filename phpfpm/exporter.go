@@ -50,6 +50,30 @@ type Exporter struct {
 	processLastRequestCPU    *prometheus.Desc
 	processRequestDuration   *prometheus.Desc
 	processState             *prometheus.Desc
+
+	// OPcache metrics
+	opcacheEnabled                        *prometheus.Desc
+	opcacheCacheFull                      *prometheus.Desc
+	opcacheRestartPending                 *prometheus.Desc
+	opcacheRestartInProgress              *prometheus.Desc
+	opcacheMemoryUsed                     *prometheus.Desc
+	opcacheMemoryFree                     *prometheus.Desc
+	opcacheMemoryWasted                   *prometheus.Desc
+	opcacheMemoryCurrentWastedPercentage  *prometheus.Desc
+	opcacheInternedStringsBufferSize      *prometheus.Desc
+	opcacheInternedStringsUsedMemory      *prometheus.Desc
+	opcacheInternedStringsFreeMemory      *prometheus.Desc
+	opcacheInternedStringsNumberOfStrings *prometheus.Desc
+	opcacheCachedScripts                  *prometheus.Desc
+	opcacheCachedKeys                     *prometheus.Desc
+	opcacheMaxCachedKeys                  *prometheus.Desc
+	opcacheHits                           *prometheus.Desc
+	opcacheMisses                         *prometheus.Desc
+	opcacheBlacklistMisses                *prometheus.Desc
+	opcacheOomRestarts                    *prometheus.Desc
+	opcacheHashRestarts                   *prometheus.Desc
+	opcacheManualRestarts                 *prometheus.Desc
+	opcacheHitRate                        *prometheus.Desc
 }
 
 // NewExporter creates a new Exporter for a PoolManager and configures the necessary metrics.
@@ -166,6 +190,138 @@ func NewExporter(pm PoolManager) *Exporter {
 			"The state of the process (Idle, Running, ...).",
 			[]string{"pool", "child", "state", "scrape_uri"},
 			nil),
+
+		opcacheEnabled: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "enabled"),
+			"Is OPcache enabled (1 = yes, 0 = no).",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheCacheFull: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cache_full"),
+			"Is the OPcache cache full (1 = yes, 0 = no).",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheRestartPending: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "restart_pending"),
+			"Is a restart pending for OPcache (1 = yes, 0 = no).",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheRestartInProgress: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "restart_in_progress"),
+			"Is OPcache currently restarting (1 = yes, 0 = no).",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheMemoryUsed: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "memory_used_bytes"),
+			"OPcache used memory in bytes.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheMemoryFree: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "memory_free_bytes"),
+			"OPcache free memory in bytes.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheMemoryWasted: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "memory_wasted_bytes"),
+			"OPcache wasted memory in bytes.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheMemoryCurrentWastedPercentage: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "memory_current_wasted_percentage"),
+			"OPcache current percentage of wasted memory.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheInternedStringsBufferSize: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "interned_strings_buffer_size_bytes"),
+			"OPcache interned strings buffer size in bytes.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheInternedStringsUsedMemory: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "interned_strings_used_bytes"),
+			"OPcache interned strings used memory in bytes.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheInternedStringsFreeMemory: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "interned_strings_free_bytes"),
+			"OPcache interned strings free memory in bytes.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheInternedStringsNumberOfStrings: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "interned_strings_number"),
+			"Number of strings in the OPcache interned strings buffer.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheCachedScripts: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cached_scripts"),
+			"Number of scripts currently cached by OPcache.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheCachedKeys: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "cached_keys"),
+			"Number of keys currently cached by OPcache.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheMaxCachedKeys: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "max_cached_keys"),
+			"Maximum number of keys that OPcache can store.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheHits: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "hits"),
+			"Total number of OPcache cache hits.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheMisses: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "misses"),
+			"Total number of OPcache cache misses.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheBlacklistMisses: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "blacklist_misses"),
+			"Total number of OPcache blacklist misses.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheOomRestarts: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "oom_restarts"),
+			"Number of OPcache restarts due to out-of-memory conditions.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheHashRestarts: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "hash_restarts"),
+			"Number of OPcache restarts due to hash overflow.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheManualRestarts: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "manual_restarts"),
+			"Number of manual OPcache restarts.",
+			[]string{"pool", "scrape_uri"},
+			nil),
+
+		opcacheHitRate: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "opcache", "hit_rate"),
+			"OPcache hit rate as a percentage.",
+			[]string{"pool", "scrape_uri"},
+			nil),
 	}
 }
 
@@ -232,6 +388,42 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(e.processLastRequestCPU, prometheus.GaugeValue, process.LastRequestCPU, pool.Name, childName, pool.Address)
 			ch <- prometheus.MustNewConstMetric(e.processRequestDuration, prometheus.GaugeValue, float64(process.RequestDuration), pool.Name, childName, pool.Address)
 		}
+
+		if pool.OpcacheScrapeError != nil {
+			log.Errorf("Error scraping OPcache: %v", pool.OpcacheScrapeError)
+		}
+
+		if opcache := pool.OpcacheStatus; opcache != nil {
+			boolToFloat := func(b bool) float64 {
+				if b {
+					return 1
+				}
+				return 0
+			}
+
+			ch <- prometheus.MustNewConstMetric(e.opcacheEnabled, prometheus.GaugeValue, boolToFloat(opcache.Enabled), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheCacheFull, prometheus.GaugeValue, boolToFloat(opcache.CacheFull), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheRestartPending, prometheus.GaugeValue, boolToFloat(opcache.RestartPending), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheRestartInProgress, prometheus.GaugeValue, boolToFloat(opcache.RestartInProgress), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheMemoryUsed, prometheus.GaugeValue, float64(opcache.MemoryUsage.UsedMemory), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheMemoryFree, prometheus.GaugeValue, float64(opcache.MemoryUsage.FreeMemory), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheMemoryWasted, prometheus.GaugeValue, float64(opcache.MemoryUsage.WastedMemory), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheMemoryCurrentWastedPercentage, prometheus.GaugeValue, opcache.MemoryUsage.CurrentWastedPercentage, pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheInternedStringsBufferSize, prometheus.GaugeValue, float64(opcache.InternedStrings.BufferSize), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheInternedStringsUsedMemory, prometheus.GaugeValue, float64(opcache.InternedStrings.UsedMemory), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheInternedStringsFreeMemory, prometheus.GaugeValue, float64(opcache.InternedStrings.FreeMemory), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheInternedStringsNumberOfStrings, prometheus.GaugeValue, float64(opcache.InternedStrings.NumberOfStrings), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheCachedScripts, prometheus.GaugeValue, float64(opcache.Statistics.NumCachedScripts), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheCachedKeys, prometheus.GaugeValue, float64(opcache.Statistics.NumCachedKeys), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheMaxCachedKeys, prometheus.GaugeValue, float64(opcache.Statistics.MaxCachedKeys), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheHits, prometheus.CounterValue, float64(opcache.Statistics.Hits), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheMisses, prometheus.CounterValue, float64(opcache.Statistics.Misses), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheBlacklistMisses, prometheus.CounterValue, float64(opcache.Statistics.BlacklistMisses), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheOomRestarts, prometheus.CounterValue, float64(opcache.Statistics.OomRestarts), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheHashRestarts, prometheus.CounterValue, float64(opcache.Statistics.HashRestarts), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheManualRestarts, prometheus.CounterValue, float64(opcache.Statistics.ManualRestarts), pool.Name, pool.Address)
+			ch <- prometheus.MustNewConstMetric(e.opcacheHitRate, prometheus.GaugeValue, opcache.Statistics.HitRate, pool.Name, pool.Address)
+		}
 	}
 }
 
@@ -254,4 +446,26 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.processLastRequestMemory
 	ch <- e.processLastRequestCPU
 	ch <- e.processRequestDuration
+	ch <- e.opcacheEnabled
+	ch <- e.opcacheCacheFull
+	ch <- e.opcacheRestartPending
+	ch <- e.opcacheRestartInProgress
+	ch <- e.opcacheMemoryUsed
+	ch <- e.opcacheMemoryFree
+	ch <- e.opcacheMemoryWasted
+	ch <- e.opcacheMemoryCurrentWastedPercentage
+	ch <- e.opcacheInternedStringsBufferSize
+	ch <- e.opcacheInternedStringsUsedMemory
+	ch <- e.opcacheInternedStringsFreeMemory
+	ch <- e.opcacheInternedStringsNumberOfStrings
+	ch <- e.opcacheCachedScripts
+	ch <- e.opcacheCachedKeys
+	ch <- e.opcacheMaxCachedKeys
+	ch <- e.opcacheHits
+	ch <- e.opcacheMisses
+	ch <- e.opcacheBlacklistMisses
+	ch <- e.opcacheOomRestarts
+	ch <- e.opcacheHashRestarts
+	ch <- e.opcacheManualRestarts
+	ch <- e.opcacheHitRate
 }

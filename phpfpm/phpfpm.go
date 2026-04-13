@@ -60,30 +60,77 @@ type logger interface {
 
 // PoolManager manages all configured Pools
 type PoolManager struct {
-	Pools []Pool `json:"pools"`
+	Pools             []Pool `json:"pools"`
+	OpcacheScriptPath string `json:"-"`
+}
+
+// OpcacheStatus holds PHP OPcache statistics retrieved from a PHP script
+type OpcacheStatus struct {
+	Enabled           bool                   `json:"opcache_enabled"`
+	CacheFull         bool                   `json:"cache_full"`
+	RestartPending    bool                   `json:"restart_pending"`
+	RestartInProgress bool                   `json:"restart_in_progress"`
+	MemoryUsage       OpcacheMemoryUsage     `json:"memory_usage"`
+	InternedStrings   OpcacheInternedStrings `json:"interned_strings_usage"`
+	Statistics        OpcacheStatistics      `json:"opcache_statistics"`
+}
+
+// OpcacheMemoryUsage holds memory usage statistics for OPcache
+type OpcacheMemoryUsage struct {
+	UsedMemory              int64   `json:"used_memory"`
+	FreeMemory              int64   `json:"free_memory"`
+	WastedMemory            int64   `json:"wasted_memory"`
+	CurrentWastedPercentage float64 `json:"current_wasted_percentage"`
+}
+
+// OpcacheInternedStrings holds interned strings buffer statistics for OPcache
+type OpcacheInternedStrings struct {
+	BufferSize      int64 `json:"buffer_size"`
+	UsedMemory      int64 `json:"used_memory"`
+	FreeMemory      int64 `json:"free_memory"`
+	NumberOfStrings int64 `json:"number_of_strings"`
+}
+
+// OpcacheStatistics holds hit/miss and key statistics for OPcache
+type OpcacheStatistics struct {
+	NumCachedScripts   int64   `json:"num_cached_scripts"`
+	NumCachedKeys      int64   `json:"num_cached_keys"`
+	MaxCachedKeys      int64   `json:"max_cached_keys"`
+	Hits               int64   `json:"hits"`
+	StartTime          int64   `json:"start_time"`
+	LastRestartTime    int64   `json:"last_restart_time"`
+	OomRestarts        int64   `json:"oom_restarts"`
+	HashRestarts       int64   `json:"hash_restarts"`
+	ManualRestarts     int64   `json:"manual_restarts"`
+	Misses             int64   `json:"misses"`
+	BlacklistMisses    int64   `json:"blacklist_misses"`
+	BlacklistMissRatio float64 `json:"blacklist_miss_ratio"`
+	HitRate            float64 `json:"opcache_hit_rate"`
 }
 
 // Pool describes a single PHP-FPM pool that can be reached via a Socket or TCP address
 type Pool struct {
 	// The address of the pool, e.g. tcp://127.0.0.1:9000 or unix:///tmp/php-fpm.sock
-	Address             string        `json:"-"`
-	ScrapeError         error         `json:"-"`
-	ScrapeFailures      int64         `json:"-"`
-	Name                string        `json:"pool"`
-	ProcessManager      string        `json:"process manager"`
-	StartTime           timestamp     `json:"start time"`
-	StartSince          int64         `json:"start since"`
-	AcceptedConnections int64         `json:"accepted conn"`
-	ListenQueue         int64         `json:"listen queue"`
-	MaxListenQueue      int64         `json:"max listen queue"`
-	ListenQueueLength   int64         `json:"listen queue len"`
-	IdleProcesses       int64         `json:"idle processes"`
-	ActiveProcesses     int64         `json:"active processes"`
-	TotalProcesses      int64         `json:"total processes"`
-	MaxActiveProcesses  int64         `json:"max active processes"`
-	MaxChildrenReached  int64         `json:"max children reached"`
-	SlowRequests        int64         `json:"slow requests"`
-	Processes           []PoolProcess `json:"processes"`
+	Address             string         `json:"-"`
+	ScrapeError         error          `json:"-"`
+	ScrapeFailures      int64          `json:"-"`
+	OpcacheScrapeError  error          `json:"-"`
+	OpcacheStatus       *OpcacheStatus `json:"-"`
+	Name                string         `json:"pool"`
+	ProcessManager      string         `json:"process manager"`
+	StartTime           timestamp      `json:"start time"`
+	StartSince          int64          `json:"start since"`
+	AcceptedConnections int64          `json:"accepted conn"`
+	ListenQueue         int64          `json:"listen queue"`
+	MaxListenQueue      int64          `json:"max listen queue"`
+	ListenQueueLength   int64          `json:"listen queue len"`
+	IdleProcesses       int64          `json:"idle processes"`
+	ActiveProcesses     int64          `json:"active processes"`
+	TotalProcesses      int64          `json:"total processes"`
+	MaxActiveProcesses  int64          `json:"max active processes"`
+	MaxChildrenReached  int64          `json:"max children reached"`
+	SlowRequests        int64          `json:"slow requests"`
+	Processes           []PoolProcess  `json:"processes"`
 }
 
 type requestDuration int64
@@ -134,6 +181,11 @@ func (pm *PoolManager) Update() (err error) {
 			defer wg.Done()
 			if err := p.Update(); err != nil {
 				log.Error(err)
+			}
+			if pm.OpcacheScriptPath != "" {
+				if err := p.UpdateOpcache(pm.OpcacheScriptPath); err != nil {
+					log.Error(err)
+				}
 			}
 		}(&pm.Pools[idx])
 	}
@@ -198,6 +250,60 @@ func (p *Pool) Update() (err error) {
 func (p *Pool) error(err error) error {
 	p.ScrapeError = err
 	p.ScrapeFailures++
+	log.Error(err)
+	return err
+}
+
+// UpdateOpcache connects to PHP-FPM via FastCGI, executes the given PHP script,
+// and parses the OPcache statistics from the JSON response.
+func (p *Pool) UpdateOpcache(scriptPath string) error {
+	p.OpcacheScrapeError = nil
+	p.OpcacheStatus = nil
+
+	scheme, address, _, err := parseURL(p.Address)
+	if err != nil {
+		return p.opcacheError(err)
+	}
+
+	fcgi, err := fcgiclient.DialTimeout(scheme, address, time.Duration(3)*time.Second)
+	if err != nil {
+		return p.opcacheError(err)
+	}
+	defer fcgi.Close()
+
+	env := map[string]string{
+		"SCRIPT_FILENAME": scriptPath,
+		"SCRIPT_NAME":     scriptPath,
+		"SERVER_SOFTWARE": "go / php-fpm_exporter",
+		"REMOTE_ADDR":     "127.0.0.1",
+		"QUERY_STRING":    "",
+	}
+
+	resp, err := fcgi.Get(env)
+	if err != nil {
+		return p.opcacheError(err)
+	}
+	defer resp.Body.Close()
+
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return p.opcacheError(err)
+	}
+
+	log.Debugf("Pool[%v] Opcache: %v", p.Address, string(content))
+
+	var status OpcacheStatus
+	if err = json.Unmarshal(content, &status); err != nil {
+		log.Errorf("Pool[%v] Opcache JSON parse error: %v", p.Address, string(content))
+		return p.opcacheError(err)
+	}
+
+	p.OpcacheStatus = &status
+	return nil
+}
+
+func (p *Pool) opcacheError(err error) error {
+	p.OpcacheScrapeError = err
 	log.Error(err)
 	return err
 }
