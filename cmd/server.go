@@ -71,7 +71,15 @@ to quickly create a Cobra application.`,
 			IdleTimeout:  time.Second * 60,
 		}
 
-		http.Handle(metricsEndpoint, promhttp.Handler())
+		opts := promhttp.HandlerOpts{
+			Timeout:             5 * time.Second,
+			MaxRequestsInFlight: 2,
+		}
+		handler := promhttp.InstrumentMetricHandler(
+			prometheus.DefaultRegisterer,
+			promhttp.HandlerFor(prometheus.DefaultGatherer, opts),
+		)
+		http.Handle(metricsEndpoint, handler)
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			_, err := w.Write([]byte(`<html>
 			 <head><title>php-fpm_exporter</title></head>

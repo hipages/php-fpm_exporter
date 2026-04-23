@@ -48,3 +48,5 @@ require (
 )
 
 go 1.23.0
+
+replace github.com/tomasen/fcgi_client => github.com/kanocz/fcgi_client v0.0.0-20210113082628-fff85c8adfb7
