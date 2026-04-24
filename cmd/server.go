@@ -73,7 +73,7 @@ to quickly create a Cobra application.`,
 
 		opts := promhttp.HandlerOpts{
 			Timeout:             5 * time.Second,
-			MaxRequestsInFlight: 2,
+			MaxRequestsInFlight: 4,
 		}
 		handler := promhttp.InstrumentMetricHandler(
 			prometheus.DefaultRegisterer,
